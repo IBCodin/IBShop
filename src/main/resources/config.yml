@@ -1,0 +1,20 @@
+# MessagePrefix: Message prefix. All messages from the plugin to a player will be prefixed with this text
+# You can add color codes to the prefix if desired
+# ListingFee: Listing Fee rate. Default is 5.00 which is a 5 percent rate
+# Player will be charged this amount of the total price when listing items
+# For example if the player lists 10 items at 10.00 each, the total is 100.00
+# and they would be charged 5.00 at the default tax rate
+# SalesFee: Sales Fee rate. Default is 10.00 which is a 10 percent rate
+# Players purchasing items will pay this much more than the selling price
+# Using the previous example with items listed at 10 each
+# Purchasing players will pay 11 each at the default rate
+# The selling player will receive 10 each
+# MaxChestCount: Maximum number of chest equivalents
+# Set to zero for no size limits
+# This number is used by the plugin to search for permissions of the form ibshop.quantity.#
+# The plugin will look for each permission from 1 to the configured number
+# The highest numbered permission assigned to the player sets their maximum sell quantity
+MessagePrefix: '[IBShop]: '
+ListingFee: 5.00
+SalesFee: 10.00
+MaxChestCount: 10

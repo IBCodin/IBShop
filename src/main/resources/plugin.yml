@@ -1,0 +1,103 @@
+name: IBShop
+version: 1.1.0
+author: ibcodin
+description: Virtual Stackable Block Shop
+main: io.github.ibcodin.ibshop.IBShop
+database: false
+startup: postworld
+depend: [Vault]
+commands:
+    ibshop:
+        description: ibshop help or commands. Shows help with no arguments
+        usage: /<command> [sub_command  arguments]
+        aliases: [ibs]
+        permission: ibshop.use
+    ibshoplist:
+        description: Show sale listings
+        usage: /<command> [item | page]
+        aliases: [ibslist]
+        permission: ibshop.list
+    ibshopfind:
+        description: Search sale listings, show lowest prices for matching items
+        usage: /<command> item
+        aliases: [ibsfind, find]
+        permission: ibshop.find
+    ibshopbuy:
+        description: Buy items that are for sale. Will pay lowest available prices, but never more than max_each_price per item. If insufficient items are available at your requested price, no items will be purchased.
+        usage: /<command> item quantity max_each_price
+        aliases: [ibsbuy, buy]
+        permission: ibshop.buy
+    ibshopsell:
+        description: Create a listing with items for sale. If this listing matches a previous listing the quantities will be combined and the each_price is optional.
+        usage: /<command> item_name quantity [each_price]
+        aliases: [ibssell, sell]
+        permission: ibshop.sell
+    ibshopstock:
+        description: Show your listings.
+        usage: /<command> [page]
+        aliases: [ibsstock, stock]
+        permission: ibshop.stock
+    ibshopcancel:
+        description: Cancel items from a previous listing.
+        usage: /<command> item_name quantity
+        aliases: [ibscancel, cancel]
+        permission: ibshop.cancel
+    ibshopconfig:
+        description: Configure settings for ibshop
+        usage: /<command> config_item value
+        aliases: [ibsconfig]
+        permission: ibshop.config
+    ibshopreload:
+        description: Reload ibshop configuration
+        usage: /<command>
+        aliases: [ibsreload]
+        permission: ibshop.reload
+permissions:
+    ibshop.use:
+        description: Basic access to <plugin>
+        default: true
+    ibshop.list:
+        description: Can list the sale listings
+        default: true
+    ibshop.find:
+        description: Can search the sale listings
+        default: true
+    ibshop.buy:
+        description: Can buy items from the sale listings
+        default: true
+    ibshop.sell:
+        description: Can sell items as a listing
+        default: true
+    ibshop.stock:
+        description: Can list the items you are selling
+        default: true
+    ibshop.cancel:
+        description: Can cancel items they have listed for sale
+        default: true
+    ibshop.config:
+        description: Can configure ibshop settings
+        default: op
+    ibshop.reload:
+        description: Can reload ibshop configuration
+        default: op
+    ibshop.quantity.1:
+        description: Can sell the equivalent of one chest worth of items
+        default: true
+    ibshop.quantity.2:
+        description: Can sell the equivalent of two chests worth of items
+        default: false
+    ibshop.general:
+        description: Give general user access to IBShop
+        children:
+            ibshop.use: true
+            ibshop.list: true
+            ibshop.find: true
+            ibshop.buy: true
+            ibshop.sell: true
+            ibshop.stock: true
+            ibshop.cancel: true
+    ibshop.admin:
+        description: Give admin access to IBShop
+        children:
+            ibshop.config: true
+            ibshop.reload: true

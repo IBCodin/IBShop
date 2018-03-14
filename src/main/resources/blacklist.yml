@@ -1,0 +1,17 @@
+# Item Blacklist.
+# This is a list of material names that cannot be sold
+# The name must match the minecraft material name exactly
+# Listing a material will suppress all variants of the material
+# For example, listing WOOL will prevent the sale of wool in any color
+# The plugin will create the default version of this file if it does not exist
+BlackList:
+    - BEDROCK
+    - MOB_SPAWNER
+    - MONSTER_EGGS
+    - COMMAND
+    - BARRIER
+    - GRASS_PATH
+    - COMMAND_REPEATING
+    - COMMAND_CHAIN
+    - STRUCTURE_VOID
+    - STRUCTURE_BLOCK
