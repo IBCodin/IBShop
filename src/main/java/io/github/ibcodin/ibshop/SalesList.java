@@ -343,7 +343,7 @@ public class SalesList {
             return true;
         }
 
-        // skip-Does the player have room for the items?
+        // skip-Does the player have that many items on sale?
         if (itemForSale.quantity < itemQty) {
             itemQty = itemForSale.quantity;
         }
@@ -551,9 +551,6 @@ public class SalesList {
     private void save() {
         log(Level.INFO, "SalesList.save");
 
-        // Remove any OLD file
-        if (oldFile.exists()) oldFile.delete();
-
         // Create new STAGE file
         if (stageFile.exists()) stageFile.delete();
 
@@ -569,6 +566,9 @@ public class SalesList {
             plugin.getLogger().log(Level.SEVERE, "Failed to write sales stage file", ee);
             return;
         }
+
+        // Remove any OLD file
+        if (oldFile.exists()) oldFile.delete();
 
         // Rename file to OLD
         saveFile.renameTo(oldFile);

@@ -62,7 +62,7 @@ public class CommandConfig extends CommandHandler {
 
             if (args.length < 2) {
                 sendMessage(sender, ChatColor.YELLOW + "Changes the percentage fee charged to the seller to list a sale.");
-                sendMessage(sender, ChatColor.YELLOW + "Must be > 0.0 and <= 50.0, currently " + oldFee);
+                sendMessage(sender, ChatColor.YELLOW + "Must be >= 0.0 and <= 50.0, currently " + oldFee);
                 return true;
             }
 

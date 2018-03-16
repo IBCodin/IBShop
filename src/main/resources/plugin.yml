@@ -9,38 +9,38 @@ depend: [Vault]
 commands:
     ibshop:
         description: ibshop help or commands. Shows help with no arguments
-        usage: /<command> [sub_command  arguments]
+        usage: /<command> [sub_command [arguments]]
         aliases: [ibs]
         permission: ibshop.use
     ibshoplist:
         description: Show sale listings
-        usage: /<command> [item | page]
+        usage: /<command> [item] [page]
         aliases: [ibslist]
         permission: ibshop.list
     ibshopfind:
         description: Search sale listings, show lowest prices for matching items
         usage: /<command> item
-        aliases: [ibsfind, find]
+        aliases: [ibsfind]
         permission: ibshop.find
     ibshopbuy:
         description: Buy items that are for sale. Will pay lowest available prices, but never more than max_each_price per item. If insufficient items are available at your requested price, no items will be purchased.
         usage: /<command> item quantity max_each_price
-        aliases: [ibsbuy, buy]
+        aliases: [ibsbuy]
         permission: ibshop.buy
     ibshopsell:
         description: Create a listing with items for sale. If this listing matches a previous listing the quantities will be combined and the each_price is optional.
         usage: /<command> item_name quantity [each_price]
-        aliases: [ibssell, sell]
+        aliases: [ibssell]
         permission: ibshop.sell
     ibshopstock:
         description: Show your listings.
         usage: /<command> [page]
-        aliases: [ibsstock, stock]
+        aliases: [ibsstock]
         permission: ibshop.stock
     ibshopcancel:
         description: Cancel items from a previous listing.
         usage: /<command> item_name quantity
-        aliases: [ibscancel, cancel]
+        aliases: [ibscancel]
         permission: ibshop.cancel
     ibshopconfig:
         description: Configure settings for ibshop
