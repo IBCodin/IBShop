@@ -1,5 +1,7 @@
-package io.github.ibcodin.ibshop;
+package io.github.ibcodin.ibshop.commands;
 
+import io.github.ibcodin.ibshop.IBShop;
+import io.github.ibcodin.ibshop.MessageLookup;
 import org.bukkit.command.*;
 
 import java.util.ArrayList;
@@ -7,11 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
-public abstract class  CommandHandler implements CommandExecutor, TabCompleter {
+public abstract class CommandHandler implements CommandExecutor, TabCompleter {
     protected final IBShop plugin;
     protected final PluginCommand command;
-    public final String commandName;
-    public final MessageLookup messageLookup;
+    private final String commandName;
 
     protected final transient List<AlternateCommand> kids = new ArrayList<>();
 
@@ -21,15 +22,14 @@ public abstract class  CommandHandler implements CommandExecutor, TabCompleter {
         this.command = plugin.getCommand(commandName);
         this.command.setExecutor(this);
         this.command.setTabCompleter(this);
-        this.messageLookup = plugin.getMessageLookup();
     }
 
     protected void sendMessage(final CommandSender sender, final String message) {
         sender.sendMessage(plugin.getSettings().prefixMessage(message));
     }
 
-    protected void sendMessage(final CommandSender sender, final MessageLookup.IBShopMessages message, Object ... args){
-        messageLookup.sendMessage(sender, message, args);
+    protected void sendMessage(final CommandSender sender, final MessageLookup.IBShopMessages message, Object... args) {
+        plugin.getMessageLookup().sendMessage(sender, message, args);
     }
 
     protected void log(Level level, String message) {
@@ -48,7 +48,7 @@ public abstract class  CommandHandler implements CommandExecutor, TabCompleter {
         return kids.size() > 0;
     }
 
-    public abstract void sendHelp(final CommandSender sender, final String label);
+    public abstract void sendHelp(final CommandSender sender, final String label, final boolean detailHelp);
 
     protected static class AlternateCommand {
         final private CommandHandler handler;
@@ -63,8 +63,8 @@ public abstract class  CommandHandler implements CommandExecutor, TabCompleter {
             return this.extra;
         }
 
-        public void sendHelp(CommandSender sender, String label) {
-            handler.sendHelp(sender, label + " " + extra);
+        public void sendHelp(CommandSender sender, String label, final boolean detailHelp) {
+            handler.sendHelp(sender, label + " " + extra, detailHelp);
         }
 
         public boolean isCommand(String extra) {
@@ -82,7 +82,7 @@ public abstract class  CommandHandler implements CommandExecutor, TabCompleter {
         public boolean sendCommand(CommandSender sender, String label, String[] args) {
             String[] myArgs = {};
             if (args.length > 1) {
-                myArgs = Arrays.copyOfRange(args,1, args.length);
+                myArgs = Arrays.copyOfRange(args, 1, args.length);
             }
             return handler.onCommand(sender, handler.command, label + " " + extra, myArgs);
         }

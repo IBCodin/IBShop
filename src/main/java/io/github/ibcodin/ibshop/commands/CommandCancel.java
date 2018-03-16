@@ -1,6 +1,5 @@
 package io.github.ibcodin.ibshop.commands;
 
-import io.github.ibcodin.ibshop.CommandHandler;
 import io.github.ibcodin.ibshop.IBShop;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -8,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.github.ibcodin.ibshop.MessageLookup.IBShopMessages.*;
@@ -20,11 +20,15 @@ public class CommandCancel extends CommandHandler {
     }
 
     @Override
-    public void sendHelp(CommandSender sender, String label) {
-        if (senderHasPermission(sender)) {
-            sendMessage(sender,"/" + label + " item quantity");
-            sendMessage(sender, ChatColor.YELLOW + "  Return items from your active sales");
-        }
+    public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
+        if (!senderHasPermission(sender)) return;
+
+        sendMessage(sender,"/" + label + " item quantity");
+        sendMessage(sender, ChatColor.YELLOW + "  Return items from your active sales");
+
+        if (!detailHelp) return;
+
+        sendMessage(sender, ChatColor.YELLOW + " Item must match exactly a name for an item you have on sale");
     }
 
 
@@ -36,6 +40,11 @@ public class CommandCancel extends CommandHandler {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        if (args.length == 0) {
+            sendHelp(sender, label, true);
+            return true;
+        }
 
         if (! (sender instanceof Player)) {
             sendMessage(sender, MSG_NOT_PLAYER);
@@ -81,7 +90,29 @@ public class CommandCancel extends CommandHandler {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] strings) {
+    public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] args) {
+
+        if (! (commandSender instanceof Player))
+            return null;
+
+        Player player = (Player) commandSender;
+
+        if ((args.length < 1) || args[0].equals("")) {
+            // Build the list of your items
+            return plugin.getSalesList().getStockNames(player);
+        }
+
+        if (args.length == 1) {
+            String lowerArg = args[0].toLowerCase();
+            List<String> returnList = new ArrayList<>();
+            for (String name : plugin.getSalesList().getStockNames(player)) {
+                if (name.toLowerCase().startsWith(lowerArg)) {
+                    returnList.add(name);
+                }
+            }
+            return returnList;
+        }
+
         return null;
     }
 }

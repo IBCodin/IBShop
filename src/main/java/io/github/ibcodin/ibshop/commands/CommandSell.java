@@ -7,6 +7,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static io.github.ibcodin.ibshop.MessageLookup.IBShopMessages.*;
@@ -19,7 +21,7 @@ public class CommandSell extends CommandHandler {
     }
 
     @Override
-    public void sendHelp(CommandSender sender, String label) {
+    public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
         if (senderHasPermission(sender)) {
             sendMessage(sender,"/" + label + " item quantity [each_price]");
             sendMessage(sender, ChatColor.YELLOW + "  Place quantity items up for sale at the each_price");
@@ -89,7 +91,31 @@ public class CommandSell extends CommandHandler {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] strings) {
+    public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] args) {
+
+        if (!(commandSender instanceof Player))
+            return null;
+
+        Player player = (Player)commandSender;
+
+        List<String> returnList = new ArrayList<>();
+
+        if ((args.length < 1) || args[0].equals("")) {
+            // Build the list of sellable items from the player inventory
+            for (ItemStack stack : player.getInventory().getContents()) {
+                if (plugin.getBlackList().onWhiteList(stack)) {
+                    String pname = plugin.getItemLookup().preferredName(stack);
+                    if (! returnList.contains(pname)) {
+                        returnList.add(pname);
+                    }
+                }
+            }
+            Collections.sort(returnList);
+            return returnList;
+        }
+
+        // If they've started typing, the input is free-form
+
         return null;
     }
 }

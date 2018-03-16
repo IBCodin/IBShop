@@ -1,6 +1,5 @@
 package io.github.ibcodin.ibshop.commands;
 
-import io.github.ibcodin.ibshop.CommandHandler;
 import io.github.ibcodin.ibshop.IBShop;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -19,11 +18,16 @@ public class CommandFind extends CommandHandler {
     }
 
     @Override
-    public void sendHelp(CommandSender sender, String label) {
-        if (senderHasPermission(sender)) {
-                sendMessage(sender, "/" + label + " item");
-                sendMessage(sender, ChatColor.YELLOW + "  Find sales of the item");
-        }
+    public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
+        if (!senderHasPermission(sender)) return;
+
+        sendMessage(sender, "/" + label + " item");
+        sendMessage(sender, ChatColor.YELLOW + "  Find sales of the item");
+
+        if (!detailHelp) return;
+
+        sendMessage(sender, ChatColor.YELLOW + "This will try to match your text to a specific item");
+        sendMessage(sender, ChatColor.YELLOW + "and show the details for any sale listing that item");
     }
 
     @Override
@@ -31,7 +35,7 @@ public class CommandFind extends CommandHandler {
         // item
 
         if (args.length == 0){
-            sendHelp(sender, label);
+            sendHelp(sender, label, true);
             return true;
         }
 

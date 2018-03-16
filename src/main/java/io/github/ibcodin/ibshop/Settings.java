@@ -10,7 +10,7 @@ public class Settings {
 
     private final IBShop plugin;
 
-    private FileConfiguration config;
+//    private FileConfiguration config;
 
     private String messagePrefix = "[ibshop]: ";
     private double listingFee = 5.00;
@@ -28,14 +28,24 @@ public class Settings {
 
     public void reload() {
         log(Level.INFO, "Loading settings");
+        // Get config and preload defaults (will create any new defaults)
+        FileConfiguration config = plugin.getConfig();
+        config.addDefault("MessagePrefix", "[ibshop]: ");
+        config.addDefault("ListingFee", 5.00);
+        config.addDefault("SalesFee", 10.00);
+        config.addDefault("MaxChestCount", 10);
+        config.options().copyDefaults(true);
+        plugin.saveConfig();
+
         config = plugin.getConfig();
-        messagePrefix = config.getString("MessagePrefix", "[ibshop]: ");
-        listingFee = config.getDouble("ListingFee", 5.00);
-        salesFee = config.getDouble("SalesFee", 10.00);
-        maxChestCount = config.getInt("MaxChestCount", 10);
+        messagePrefix = config.getString("MessagePrefix");
+        listingFee = config.getDouble("ListingFee");
+        salesFee = config.getDouble("SalesFee");
+        maxChestCount = config.getInt("MaxChestCount");
     }
 
     public void save() {
+        FileConfiguration config = plugin.getConfig();
         config.set("MessagePrefix", messagePrefix);
         config.set("ListingFee", listingFee);
         config.set("SalesFee", salesFee);

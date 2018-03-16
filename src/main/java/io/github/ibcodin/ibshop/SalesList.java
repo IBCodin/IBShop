@@ -21,7 +21,7 @@ import static java.lang.Math.min;
 
 public class SalesList {
 
-    public static final int pageSize = 6;
+    private static final int pageSize = 6;
 
     private final IBShop plugin;
     private final Economy economy;
@@ -34,7 +34,7 @@ public class SalesList {
     private final File stageFile;
     private final List<ItemForSale> sales = new ArrayList<>();
 
-    private static final transient Pattern csvSplit = Pattern.compile("\\s*,\\s*");
+//    private static final transient Pattern csvSplit = Pattern.compile("\\s*,\\s*");
 
     SalesList(IBShop plugin) {
         this.plugin = plugin;
@@ -320,6 +320,18 @@ public class SalesList {
         return true;
     }
 
+    public List<String> getStockNames(Player sender) {
+        List<ItemForSale> items = findStock(sender.getUniqueId());
+
+        List<String> returnList = new ArrayList<>();
+        for (ItemForSale item : items) {
+            returnList.add(item.preferredName);
+        }
+
+        Collections.sort(returnList);
+        return returnList;
+    }
+
     public boolean cancelSale(Player sender, ItemStack material, String itemName, int itemQty) {
         String preferredName = itemLookup.preferredName(material);
 
@@ -368,7 +380,15 @@ public class SalesList {
         return showSalesSummary(sender, page, salesSummaryFiltered(preferredNames));
     }
 
-    protected boolean showSalesSummary(final CommandSender sender, final int page, final List<ItemSummary> items) {
+    public List<String> getSalesItemNames() {
+        List<String> returnList = new ArrayList<>();
+        for (ItemSummary item : salesSummary()) {
+            returnList.add(item.preferredName);
+        }
+        return returnList;
+    }
+
+    private boolean showSalesSummary(final CommandSender sender, final int page, final List<ItemSummary> items) {
         if (items.isEmpty()) {
             sendMessage(sender, MSG_NO_LISTINGS);
             return true;
@@ -392,7 +412,7 @@ public class SalesList {
     }
 
 
-    protected List<ItemSummary> salesSummaryFiltered(final List<String> prefNames) {
+    private List<ItemSummary> salesSummaryFiltered(final List<String> prefNames) {
         final List<ItemSummary> result = new ArrayList<>();
         for (ItemSummary sum : salesSummary()) {
             if (prefNames.contains(sum.preferredName)) {
@@ -402,7 +422,7 @@ public class SalesList {
         return result;
     }
 
-    protected List<ItemSummary> salesSummary() {
+    private List<ItemSummary> salesSummary() {
         final List<ItemSummary> summary = new ArrayList<>();
         final Map<String, ItemSummary> map = new HashMap<>();
 
@@ -420,7 +440,7 @@ public class SalesList {
     }
 
 
-    protected List<ItemForSale> findSales(String preferredName) {
+    private List<ItemForSale> findSales(String preferredName) {
         List<ItemForSale> matches = new ArrayList<>();
         for (ItemForSale item : sales) {
             if (item == null) {
@@ -436,12 +456,12 @@ public class SalesList {
             }
         }
 
-        Collections.sort(matches, ItemForSale.PRICE_ORDER);
+        matches.sort(ItemForSale.PRICE_ORDER);
 
         return matches;
     }
 
-    protected List<ItemForSale> findStock(UUID sellerId) {
+    private List<ItemForSale> findStock(UUID sellerId) {
         List<ItemForSale> stock = new ArrayList<>();
         for (ItemForSale item : sales) {
             if (item == null) {
@@ -455,7 +475,7 @@ public class SalesList {
         return stock;
     }
 
-    protected ItemForSale find(UUID sellerId, String preferredName){
+    private ItemForSale find(UUID sellerId, String preferredName){
         for (ItemForSale itemForSale : sales) {
             if (itemForSale.sellingPlayerId.equals(sellerId) && itemForSale.preferredName.equals(preferredName)) {
                 return itemForSale;
@@ -464,7 +484,7 @@ public class SalesList {
         return null;
     }
 
-    protected int getListingStacks(Player sender) {
+    private int getListingStacks(Player sender) {
         int stacks = 0;
         List<ItemForSale> stock = this.findStock(sender.getUniqueId());
         for (ItemForSale item : stock) {
@@ -475,7 +495,7 @@ public class SalesList {
         return stacks;
     }
 
-    protected int getPlayerInventoryCount(Player player, ItemStack material) {
+    private int getPlayerInventoryCount(Player player, ItemStack material) {
         int count = 0;
         for (ItemStack stack : player.getInventory().getContents()) {
             if (stack != null &&
@@ -488,7 +508,7 @@ public class SalesList {
         return count;
     }
 
-    protected int getMaxStacks(Player player){
+    private int getMaxStacks(Player player){
         int numChest = 0;
         for (int ii = 1; ii <= settings.getMaxChestCount(); ii++) {
             if (player.hasPermission(String.format("ibshop.quantity.%d", ii))) {
@@ -528,7 +548,7 @@ public class SalesList {
         }
     }
 
-    public void save() {
+    private void save() {
         log(Level.INFO, "SalesList.save");
 
         // Remove any OLD file
@@ -559,7 +579,7 @@ public class SalesList {
 
     }
 
-    static class ItemForSale {
+    static public class ItemForSale {
         private static final transient Pattern csvSplit = Pattern.compile("\\s*,\\s*");
         private static final transient SimpleDateFormat dateSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 

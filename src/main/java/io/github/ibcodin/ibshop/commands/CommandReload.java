@@ -1,6 +1,5 @@
 package io.github.ibcodin.ibshop.commands;
 
-import io.github.ibcodin.ibshop.CommandHandler;
 import io.github.ibcodin.ibshop.IBShop;
 import org.bukkit.ChatColor;
 import org.bukkit.command.*;
@@ -15,7 +14,7 @@ public class CommandReload extends CommandHandler {
     }
 
     @Override
-    public void sendHelp(CommandSender sender, String label) {
+    public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
         if (senderHasPermission(sender)) {
             sendMessage(sender,"/" + label);
             sendMessage(sender, ChatColor.YELLOW + "  Rereads plugin configuration from disk");

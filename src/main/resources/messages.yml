@@ -4,7 +4,6 @@
 # If you have an open single quote in your message,
 # it could suppress parameter substitution for the rest of the message
 Messages:
-
   MSG_BAD_SELL_ARGS: "Sales listings require an item to sell, quantity and each price."
   MSG_SELL_USAGE: "{0} <itemname|hand> <quantity> <each_price>"
   MSG_SELL_BAD_PRICE: "Sales listings must have a non-zero sales price"
@@ -14,7 +13,6 @@ Messages:
   MSG_CANCEL_USAGE: "{0} <itemname> <quantity>"
   MSG_BAD_BUY_ARGS: "Purchases require an item to buy, quantity and maximum purchase price."
   MSG_BUY_USAGE: "{0} <itemname> <quantity> <max_each_price>"
-
   MSG_NOT_PLAYER: "You must be a player to buy or sell items."
   MSG_NOT_MATERIAL: "We don''t recognize {0} as an item."
   MSG_NOT_WHITELIST: "We don''t accept {0} for sale."
@@ -30,7 +28,6 @@ Messages:
   MSG_CANCEL_NO_ITEMS: "You aren''t selling {0}"
   MSG_INVALID_PAGE_NUMBER: "The value {0} is not a valid page number"
   MSG_PAGE_OF: "  page {0} of {1}"
-
   MSG_PRIOR_LISTING: "You already have {0} x {1} for sale at {2}"
   MSG_CHANGE_PRICE: "This sale will update the price from {0} to {1}"
   MSG_HIGHER_FEE: "There will be a listing fee of {0} for this increase"
@@ -45,7 +42,6 @@ Messages:
   MSG_ITEMS_SOLD: "You received {0} for selling {1} x {2} at {3}"
   MSG_SALES_SUMMARY: "  {0} {1}"
   MSG_RESEND_TO_CONFIRM: "Resend command to confirm"
-
   MSG_PREFIX_CHANGED: "Changed message prefix from {0} to {1}"
   MSG_NEGATIVE_LISTING_FEE: "The listing fee cannot be < 0.0"
   MSG_EXCESSIVE_LISTING_FEE: "The listing fee cannot exceed 50.0"

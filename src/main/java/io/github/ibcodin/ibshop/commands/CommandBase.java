@@ -1,12 +1,10 @@
 package io.github.ibcodin.ibshop.commands;
 
-import io.github.ibcodin.ibshop.CommandHandler;
 import io.github.ibcodin.ibshop.IBShop;
-import org.bukkit.ChatColor;
 import org.bukkit.command.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class CommandBase extends CommandHandler {
@@ -18,12 +16,12 @@ public class CommandBase extends CommandHandler {
     }
 
     @Override
-    public void sendHelp(CommandSender sender, String label) {
+    public void sendHelp(CommandSender sender, String label, final boolean detailHelp) {
         sendMessage(sender, "General Interface");
 
         // Ask each child command to send their help
         for (AlternateCommand kid : kids) {
-            kid.sendHelp(sender, label);
+            kid.sendHelp(sender, label, detailHelp);
         }
     }
 
@@ -35,7 +33,7 @@ public class CommandBase extends CommandHandler {
         // otherwise first arg is target command
 
         if (args.length < 1) {
-            sendHelp(sender, label);
+            sendHelp(sender, label, false);
             return true;
         }
 
@@ -52,8 +50,7 @@ public class CommandBase extends CommandHandler {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
 
-
-        if (args.length < 1) {
+        if (args.length < 1 || args[0].equals("")) {
             List<String> subs = new ArrayList<>();
             for (AlternateCommand kid : kids) {
                 if (kid.canCommand(sender)) {
@@ -63,24 +60,24 @@ public class CommandBase extends CommandHandler {
             return subs;
         }
 
-        if (args.length > 0) {
-            // Check for full match
+        if (args.length > 1) {
+            // Hand off tab complete to the appropriate kid
             for (AlternateCommand kid : kids) {
                 if (kid.wantsCommand(sender, args[0])) {
                     return kid.getTabComplete(sender, label, args);
                 }
             }
-
-            // Return list of partial matches
-            List<String> subs = new ArrayList<>();
-            for (AlternateCommand kid : kids) {
-                if (kid.canCommand(sender) && kid.getExtra().startsWith(args[0].toLowerCase())) {
-                    subs.add(kid.getExtra());
-                }
-            }
-            return subs;
+            return null;
         }
-        return null;
-    }
 
+        // Only one, non-empty arg, build list of matching kids
+        List<String> subs = new ArrayList<>();
+        for (AlternateCommand kid : kids) {
+            if (kid.canCommand(sender) && kid.getExtra().startsWith(args[0].toLowerCase())) {
+                subs.add(kid.getExtra());
+            }
+        }
+        Collections.sort(subs);
+        return subs;
+    }
 }

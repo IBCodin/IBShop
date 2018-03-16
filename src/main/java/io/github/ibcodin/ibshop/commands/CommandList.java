@@ -1,12 +1,10 @@
 package io.github.ibcodin.ibshop.commands;
 
-import io.github.ibcodin.ibshop.CommandHandler;
 import io.github.ibcodin.ibshop.IBShop;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-import java.util.Collections;
 import java.util.List;
 
 import static io.github.ibcodin.ibshop.MessageLookup.IBShopMessages.*;
@@ -20,15 +18,25 @@ public class CommandList extends CommandHandler {
     }
 
     @Override
-    public void sendHelp(CommandSender sender, String label) {
+    public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
         if (senderHasPermission(sender)) {
             sendMessage(sender, "/" + label + " [item | page]");
             sendMessage(sender, ChatColor.YELLOW + "  List sales by item match or page");
+
+            if (!detailHelp) return;
+
+            sendMessage(sender, ChatColor.YELLOW + "Performs an extended search");
+            sendMessage(sender, ChatColor.YELLOW + "Specifying "+ ChatColor.AQUA + "WO" + ChatColor.YELLOW + " will find both WOOL and WOOD");
         }
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        if ((args.length == 1) && (args[0].equals("?"))) {
+            sendHelp(sender, label, true);
+            return true;
+        }
 
         int page = 1;
         if (args.length == 0) {
@@ -61,7 +69,7 @@ public class CommandList extends CommandHandler {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] strings) {
+    public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] args) {
         return null;
     }
 }
