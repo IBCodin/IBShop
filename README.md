@@ -1,13 +1,13 @@
 # IBShop
-The IBShop is intended for commodity sales on a multiplayer minecraft server.
+The IBShop is intended for player driven commodity sales on a multi-player Minecraft server.
 
 The plugin requires **Vault** to find your economy.
 
-The plugin is almost entirely command driven. The only visible interaction is an option to sell whatever you are holding in your primary hand.
+The shop is a server-wide player-driven market. Players can find, buy and post to sell most stackable items.
 
-The players can create sales listings from items in their inventory. The player determines how many items they want to sell and how much they would like to be paid for each item. The server optionally (on by default) charges a listing fee to create the sales listing.
+The interface is text-based and command driven and has support for server related transaction fees and a configurable limit to number of items sold.
 
-The players can list the items for sale snd find details about the sales listings for a particular item. If desired, a player can submit a buy order to purchase any available items subject to quantity and price limits the player specifies. The number of items you can actually receive is limited by available inventory space.
+The shop starts empty and will only have items available when a player posts something for sale.
 
 ## Configuration
 
@@ -37,7 +37,11 @@ The SalesFee must be greater than or equal to 0.00 and less than or equal to 75.
 ### MaxChestCount
 `Default: 10`
 
-Players can be limited in the number of items they can sell in the shop. If this value is configured to zero, all players have no limit to the number of items they can sell. If this number is greater than zero it is used to build permission names. At the default value of 10, the permission names are:
+Players can be limited in the number of items they can sell in the shop. If this value is configured to zero, all players have no limit to the number of items they can sell. 
+
+If they are limited, the limit is specified in single chests (27 stacks of items.)
+
+If this number is greater than zero it looks for permission up to the number. At the default value of 10, the permission names are:
 * ibshop.quantity.1
 * ibshop.quantity.2
 * ibshop.quantity.3
@@ -51,7 +55,7 @@ Players can be limited in the number of items they can sell in the shop. If this
 
 Each player will be able to list for sale items equivalent to the number of chests associated with their highest permission.
 
-For example if Player A has the ibshop.quantity.1 and ibshop.quantity.3 permissions, they would be able to sell up to 3 chests worth of items. The limit is based on maximum stack size and 27 stacks per chest.
+For example if Player A has the ibshop.quantity.1 and ibshop.quantity.3 permissions, they would be able to sell up to 3 chests worth of items.
 
 ## Commands
 
@@ -82,7 +86,7 @@ The detail listings will show the quantity available and the purchase price.
 
 Used to purchase sales items from the listings.
 
-The item you specifiy must match a specific item or you will see and error message and no listings. 
+The item you specifiy must match a specific item or you will see an error message and no listings. 
 
 The purchase will go through the sales listings from lowest price to highest price, attempting to purchase a total of **quantity** items where the purchase price is no more than **max_each_price** each.
 
