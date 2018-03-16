@@ -23,16 +23,16 @@ public class CommandBuy extends CommandHandler {
     @Override
     public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
         if (senderHasPermission(sender)) {
-            sendMessage(sender,"/" + label + " item quantity max_each_price");
-            sendMessage(sender,ChatColor.YELLOW + "  Buy quantity items up to max_each_price");
-            sendMessage(sender,ChatColor.YELLOW + "  You must have enough to pay for and hold all of the items");
+            sendMessage(sender, "/" + label + " item quantity max_each_price");
+            sendMessage(sender, ChatColor.YELLOW + "  Buy quantity items up to max_each_price");
+            sendMessage(sender, ChatColor.YELLOW + "  You must have enough to pay for and hold all of the items");
         }
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (! (sender instanceof Player)) {
+        if (!(sender instanceof Player)) {
             sendMessage(sender, MSG_NOT_PLAYER);
             return true;
         }

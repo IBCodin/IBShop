@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
-import static io.github.ibcodin.ibshop.MessageLookup.IBShopMessages.*;
+import static io.github.ibcodin.ibshop.MessageLookup.IBShopMessages.MSG_NOT_PLAYER;
 
 public class CommandStock extends CommandHandler {
     public static final String CommandName = "ibshopstock";
@@ -20,7 +20,7 @@ public class CommandStock extends CommandHandler {
     @Override
     public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
         if (senderHasPermission(sender)) {
-            sendMessage(sender,"/" + label + " [page]");
+            sendMessage(sender, "/" + label + " [page]");
             sendMessage(sender, ChatColor.YELLOW + "  Show the items you have for sale");
         }
     }
@@ -29,7 +29,7 @@ public class CommandStock extends CommandHandler {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (! (sender instanceof Player)) {
+        if (!(sender instanceof Player)) {
             sendMessage(sender, MSG_NOT_PLAYER);
             return true;
         }

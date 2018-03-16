@@ -98,7 +98,7 @@ public class SalesList {
         double totalFee = listingFee + upgradeFee;
 
         // Confirm you have the listing fee
-        if (! economy.has(sender, totalFee)) {
+        if (!economy.has(sender, totalFee)) {
             sendMessage(sender, MSG_ECON_LISTING_FAIL, economy.format(totalFee));
             return true;
         }
@@ -199,7 +199,7 @@ public class SalesList {
 
         // ensure the player has enough to pay for the entire order in case it is satisfied
         double maxPay = itemQty * itemEach;
-        if (! economy.has(sender, maxPay)) {
+        if (!economy.has(sender, maxPay)) {
             sendMessage(sender, MSG_ECON_BUY_FAIL, economy.format(maxPay));
             return true;
         }
@@ -221,7 +221,7 @@ public class SalesList {
             Map<Integer, ItemStack> nofit = sender.getInventory().addItem(requested);
 
             // Adjust the Qty for what fit
-            if (! nofit.isEmpty()) {
+            if (!nofit.isEmpty()) {
                 buyQty -= nofit.get(0).getAmount();
             }
 
@@ -252,7 +252,7 @@ public class SalesList {
                     buyQty,
                     itemName,
                     economy.format(eachBuyPrice)
-                    );
+            );
 
             // Update the listing
             if (buyQty == item.quantity) {
@@ -305,12 +305,12 @@ public class SalesList {
         pageLast = (pageLast > items.size()) ? items.size() : pageLast;
 
         if (pageFirst < items.size()) {
-            for (ItemForSale item: items.subList(pageFirst, pageLast)) {
+            for (ItemForSale item : items.subList(pageFirst, pageLast)) {
                 sendMessage(sender, MSG_STOCK_LISTING,
                         item.quantity,
                         item.preferredName,
                         economy.format(item.eachPrice)
-                        );
+                );
             }
             sendMessage(sender, MSG_PAGE_OF, page, nPages);
         } else {
@@ -354,7 +354,7 @@ public class SalesList {
         Map<Integer, ItemStack> nofit = sender.getInventory().addItem(requested);
 
         // Adjust the Qty for what fit
-        if (! nofit.isEmpty()) {
+        if (!nofit.isEmpty()) {
             itemQty -= nofit.get(0).getAmount();
         }
 
@@ -475,7 +475,7 @@ public class SalesList {
         return stock;
     }
 
-    private ItemForSale find(UUID sellerId, String preferredName){
+    private ItemForSale find(UUID sellerId, String preferredName) {
         for (ItemForSale itemForSale : sales) {
             if (itemForSale.sellingPlayerId.equals(sellerId) && itemForSale.preferredName.equals(preferredName)) {
                 return itemForSale;
@@ -508,7 +508,7 @@ public class SalesList {
         return count;
     }
 
-    private int getMaxStacks(Player player){
+    private int getMaxStacks(Player player) {
         int numChest = 0;
         for (int ii = 1; ii <= settings.getMaxChestCount(); ii++) {
             if (player.hasPermission(String.format("ibshop.quantity.%d", ii))) {
@@ -521,7 +521,7 @@ public class SalesList {
     public void reload() {
         log(Level.INFO, "Loading sales list");
 
-        if (! saveFile.exists()) {
+        if (!saveFile.exists()) {
             log(Level.WARNING, "No sales listing file: saleslist.csv");
             return;
         }
@@ -529,13 +529,13 @@ public class SalesList {
         sales.clear();
 
         try {
-            try(BufferedReader br = new BufferedReader(new FileReader(saveFile))){
-                for (String line; (line = br.readLine()) != null; ){
+            try (BufferedReader br = new BufferedReader(new FileReader(saveFile))) {
+                for (String line; (line = br.readLine()) != null; ) {
                     if (line.length() > 0 && line.charAt(0) == '#')
                         continue;
 
                     ItemForSale item = ItemForSale.reparse(line);
-                    if (item == null){
+                    if (item == null) {
                         log(Level.SEVERE, "Failed to load sale: " + line);
                         continue;
                     }
@@ -565,8 +565,7 @@ public class SalesList {
                     writer.write(sale.dump());
                 }
             }
-        }
-        catch (Exception ee) {
+        } catch (Exception ee) {
             plugin.getLogger().log(Level.SEVERE, "Failed to write sales stage file", ee);
             return;
         }
@@ -579,13 +578,19 @@ public class SalesList {
 
     }
 
-    static public class ItemForSale {
-        private static final transient Pattern csvSplit = Pattern.compile("\\s*,\\s*");
-        private static final transient SimpleDateFormat dateSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public void sendMessage(CommandSender sender, MessageLookup.IBShopMessages msg, Object... args) {
+        messageLookup.sendMessage(sender, msg, args);
+    }
 
+    protected void log(Level level, String message) {
+        plugin.getLogger().log(level, message);
+    }
+
+    static public class ItemForSale {
         public static final Comparator<ItemForSale> PRICE_ORDER =
                 Comparator.comparingDouble(o -> o.eachPrice);
-
+        private static final transient Pattern csvSplit = Pattern.compile("\\s*,\\s*");
+        private static final transient SimpleDateFormat dateSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String preferredName;
         int quantity;
         double eachPrice;
@@ -606,44 +611,29 @@ public class SalesList {
         }
 
         protected ItemForSale(String preferredName,
-                           String quantity,
-                           String eachPrice,
-                           String sellerId,
-                           String lastListing,
-                           String lastSale) {
+                              String quantity,
+                              String eachPrice,
+                              String sellerId,
+                              String lastListing,
+                              String lastSale) {
             this.preferredName = preferredName;
             this.quantity = Integer.parseInt(quantity);
             this.eachPrice = Double.parseDouble(eachPrice);
             this.sellingPlayerId = UUID.fromString(sellerId);
             try {
                 this.lastListing = dateSdf.parse(lastListing);
-            }
-            catch (ParseException ee) {
+            } catch (ParseException ee) {
                 this.lastListing = new Date();
             }
             if (lastSale.isEmpty()) {
                 this.lastSale = null;
             } else {
-                try{
+                try {
                     this.lastSale = dateSdf.parse(lastSale);
-                }
-                catch (ParseException ee) {
+                } catch (ParseException ee) {
                     this.lastSale = null;
                 }
             }
-        }
-
-
-        public String dump() {
-            return new MessageFormat("{0},{1},{2},{3},{4},{5}\n")
-                    .format(new Object[] {
-                            preferredName,
-                            quantity,
-                            eachPrice,
-                            sellingPlayerId,
-                            dateSdf.format(lastListing),
-                            ((lastSale == null) ? "" : dateSdf.format(lastSale))
-                    });
         }
 
         public static ItemForSale reparse(final String line) {
@@ -663,6 +653,18 @@ public class SalesList {
                     (fields.length > 5) ? fields[5] : ""
             );
         }
+
+        public String dump() {
+            return new MessageFormat("{0},{1},{2},{3},{4},{5}\n")
+                    .format(new Object[]{
+                            preferredName,
+                            quantity,
+                            eachPrice,
+                            sellingPlayerId,
+                            dateSdf.format(lastListing),
+                            ((lastSale == null) ? "" : dateSdf.format(lastSale))
+                    });
+        }
     }
 
     static class ItemSummary {
@@ -675,21 +677,13 @@ public class SalesList {
         }
 
         public void add(ItemForSale item) {
-            assert(item.preferredName.equals(this.preferredName));
+            assert (item.preferredName.equals(this.preferredName));
             this.quantity += item.quantity;
         }
 
         public String dump() {
             return new MessageFormat("{0},{1}\n")
-                    .format(new Object[] {preferredName, quantity});
+                    .format(new Object[]{preferredName, quantity});
         }
-    }
-
-    public void sendMessage(CommandSender sender, MessageLookup.IBShopMessages msg, Object ... args) {
-        messageLookup.sendMessage(sender, msg, args);
-    }
-
-    protected void log(Level level, String message) {
-        plugin.getLogger().log(level, message);
     }
 }

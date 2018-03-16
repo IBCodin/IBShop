@@ -2,9 +2,7 @@ package io.github.ibcodin.ibshop;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.io.File;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Settings {
 

@@ -1,9 +1,9 @@
 package io.github.ibcodin.ibshop;
 
 import io.github.ibcodin.ibshop.commands.*;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import net.milkbowl.vault.economy.Economy;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,13 +12,13 @@ import java.util.logging.Level;
 
 public class IBShop extends JavaPlugin {
 
+    private final Map<UUID, Object> userCache = new HashMap<>();
     private Economy economy;
     private Settings settings;
     private MessageLookup messageLookup;
     private ItemLookup itemLookup;
     private BlackList blackList;
     private SalesList salesList;
-
     private CommandHandler base;
     private CommandHandler list;
     private CommandHandler find;
@@ -29,8 +29,6 @@ public class IBShop extends JavaPlugin {
     private CommandHandler config;
     private CommandHandler reload;
 
-    private final Map<UUID, Object> userCache = new HashMap<>();
-
     public IBShop() {
     }
 
@@ -39,7 +37,7 @@ public class IBShop extends JavaPlugin {
         log(Level.INFO, "initializing");
 
         // If the plugin directory does not exist, create it
-        if(!getDataFolder().exists()) {
+        if (!getDataFolder().exists()) {
             getDataFolder().mkdirs();
         }
 

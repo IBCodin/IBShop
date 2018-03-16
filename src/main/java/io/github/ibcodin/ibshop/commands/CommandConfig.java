@@ -23,15 +23,15 @@ public class CommandConfig extends CommandHandler {
     public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
         if (!senderHasPermission(sender)) return;
 
-        sendMessage(sender,"/" + label + " parameter value");
-        sendMessage(sender,ChatColor.YELLOW + "  Change global shop parameter value");
+        sendMessage(sender, "/" + label + " parameter value");
+        sendMessage(sender, ChatColor.YELLOW + "  Change global shop parameter value");
 
         if (!detailHelp) return;
         sendMessage(sender, ChatColor.YELLOW + "Valid Parameters:");
-        sendMessage(sender, ChatColor.AQUA+ "  MessagePrefix " + ChatColor.YELLOW + "- prefix added to messages from this plugin");
-        sendMessage(sender, ChatColor.AQUA+ "  ListingFee " + ChatColor.YELLOW + "- % charge to sellers to list items");
-        sendMessage(sender, ChatColor.AQUA+ "  SalesFee " + ChatColor.YELLOW + "- % charge to purchasers of items");
-        sendMessage(sender, ChatColor.AQUA+ "  MaxChestCount " + ChatColor.YELLOW + "- Maximum number of chests for any player");
+        sendMessage(sender, ChatColor.AQUA + "  MessagePrefix " + ChatColor.YELLOW + "- prefix added to messages from this plugin");
+        sendMessage(sender, ChatColor.AQUA + "  ListingFee " + ChatColor.YELLOW + "- % charge to sellers to list items");
+        sendMessage(sender, ChatColor.AQUA + "  SalesFee " + ChatColor.YELLOW + "- % charge to purchasers of items");
+        sendMessage(sender, ChatColor.AQUA + "  MaxChestCount " + ChatColor.YELLOW + "- Maximum number of chests for any player");
         sendMessage(sender, ChatColor.YELLOW + "     If set to zero, no seller has any limits");
     }
 

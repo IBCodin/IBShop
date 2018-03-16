@@ -16,70 +16,13 @@ import static io.github.ibcodin.ibshop.MessageLookup.IBShopMessages.*;
 
 public class MessageLookup {
 
+    private final static String configSectionName = "Messages";
     private final IBShop plugin;
     private final Settings settings;
-
-    private final static String configSectionName = "Messages";
     private final File saveFile;
     private FileConfiguration config;
 
     private Map<IBShopMessages, String> messageMap = new HashMap<>();
-
-    public enum IBShopMessages {
-        MSG_BAD_SELL_ARGS,
-        MSG_SELL_USAGE,
-		MSG_SELL_BAD_PRICE,
-        MSG_BAD_FIND_ARGS,
-        MSG_FIND_USAGE,
-        MSG_BAD_CANCEL_ARGS,
-        MSG_CANCEL_USAGE,
-		MSG_BAD_BUY_ARGS,
-		MSG_BUY_USAGE,
-
-        MSG_NOT_PLAYER,
-        MSG_NOT_MATERIAL,
-        MSG_NOT_WHITELIST,
-        MSG_NO_LISTINGS,
-		MSG_NO_MORE_LISTINGS,
-        MSG_TOO_FEW_ITEMS,
-        MSG_ECON_LISTING_FAIL,
-        MSG_LISTINGS_FULL,
-        MSG_ECON_BUY_FAIL,
-        MSG_SUPPLY_BUY_FAIL,
-        MSG_INV_FAIL,
-        MSG_STOCK_NO_ITEMS,
-        MSG_CANCEL_NO_ITEMS,
-        MSG_INVALID_PAGE_NUMBER,
-        MSG_PAGE_OF,
-
-        MSG_PRIOR_LISTING,
-        MSG_CHANGE_PRICE,
-        MSG_HIGHER_FEE,
-        MSG_LISTING_TOTAL,
-        MSG_LISTING_FEE,
-        MSG_FIND_LISTING,
-        MSG_FOUND_LISTING,
-        MSG_STOCK_LISTING,
-        MSG_LISTING_ADDED,
-        MSG_ITEMS_BOUGHT,
-        MSG_ITEMS_CANCELLED,
-        MSG_ITEMS_SOLD,
-        MSG_SALES_SUMMARY,
-        MSG_RESEND_TO_CONFIRM,
-
-        MSG_PREFIX_CHANGED,
-        MSG_NEGATIVE_LISTING_FEE,
-        MSG_EXCESSIVE_LISTING_FEE,
-        MSG_LISTING_FEE_CHANGED,
-        MSG_NEGATIVE_SALES_FEE,
-        MSG_EXCESSIVE_SALES_FEE,
-        MSG_SALES_FEE_CHANGED,
-        MSG_CHEST_COUNT_INVALID,
-        MSG_CHEST_COUNT_CHANGED,
-        MSG_CHEST_STACK_LIMIT,
-        MSG_CHEST_STACK_NO_LIMIT
-    }
-
 
     public MessageLookup(IBShop plugin) {
         this.plugin = plugin;
@@ -97,7 +40,7 @@ public class MessageLookup {
 
     }
 
-    public void sendMessage(CommandSender sender, MessageLookup.IBShopMessages msg, Object ... args) {
+    public void sendMessage(CommandSender sender, MessageLookup.IBShopMessages msg, Object... args) {
 //        log(Level.INFO, "sendMessage to " + sender.getName() + ": " + msg.name() + " #args=" + args.length);
 //        for (Object arg : args) {
 //            log(Level.INFO, "  " + arg.toString());
@@ -114,16 +57,8 @@ public class MessageLookup {
         log(Level.WARNING, "Failed to send " + msg.name());
     }
 
-//    public String cfgMessage( IBShopMessages msg, Object ... args) {
-//        if (messageMap.containsKey(msg)) {
-//            return new MessageFormat(settings.prefixMessage(messageMap.get(msg))).format(args);
-//        }
-//        log(Level.WARNING, "Failed to find " + msg.name());
-//        return "";
-//    }
-
     public void reload() {
-        log(Level.INFO,"Loading Messages");
+        log(Level.INFO, "Loading Messages");
 
         if (!saveFile.exists()) {
             log(Level.SEVERE, "Could not open messages.yml");
@@ -132,7 +67,7 @@ public class MessageLookup {
         // Initialize with default messages (will create any new defaults)
         config = YamlConfiguration.loadConfiguration(saveFile);
 
-        if (! config.isConfigurationSection(configSectionName)) {
+        if (!config.isConfigurationSection(configSectionName)) {
             config.createSection(configSectionName);
         }
 
@@ -208,12 +143,75 @@ public class MessageLookup {
         }
     }
 
+//    public String cfgMessage( IBShopMessages msg, Object ... args) {
+//        if (messageMap.containsKey(msg)) {
+//            return new MessageFormat(settings.prefixMessage(messageMap.get(msg))).format(args);
+//        }
+//        log(Level.WARNING, "Failed to find " + msg.name());
+//        return "";
+//    }
+
     protected void addDefaultMessage(ConfigurationSection section, IBShopMessages message, String messageText) {
         section.addDefault(message.name(), messageText);
     }
 
     protected void log(Level level, String message) {
         plugin.getLogger().log(level, message);
+    }
+
+    public enum IBShopMessages {
+        MSG_BAD_SELL_ARGS,
+        MSG_SELL_USAGE,
+        MSG_SELL_BAD_PRICE,
+        MSG_BAD_FIND_ARGS,
+        MSG_FIND_USAGE,
+        MSG_BAD_CANCEL_ARGS,
+        MSG_CANCEL_USAGE,
+        MSG_BAD_BUY_ARGS,
+        MSG_BUY_USAGE,
+
+        MSG_NOT_PLAYER,
+        MSG_NOT_MATERIAL,
+        MSG_NOT_WHITELIST,
+        MSG_NO_LISTINGS,
+        MSG_NO_MORE_LISTINGS,
+        MSG_TOO_FEW_ITEMS,
+        MSG_ECON_LISTING_FAIL,
+        MSG_LISTINGS_FULL,
+        MSG_ECON_BUY_FAIL,
+        MSG_SUPPLY_BUY_FAIL,
+        MSG_INV_FAIL,
+        MSG_STOCK_NO_ITEMS,
+        MSG_CANCEL_NO_ITEMS,
+        MSG_INVALID_PAGE_NUMBER,
+        MSG_PAGE_OF,
+
+        MSG_PRIOR_LISTING,
+        MSG_CHANGE_PRICE,
+        MSG_HIGHER_FEE,
+        MSG_LISTING_TOTAL,
+        MSG_LISTING_FEE,
+        MSG_FIND_LISTING,
+        MSG_FOUND_LISTING,
+        MSG_STOCK_LISTING,
+        MSG_LISTING_ADDED,
+        MSG_ITEMS_BOUGHT,
+        MSG_ITEMS_CANCELLED,
+        MSG_ITEMS_SOLD,
+        MSG_SALES_SUMMARY,
+        MSG_RESEND_TO_CONFIRM,
+
+        MSG_PREFIX_CHANGED,
+        MSG_NEGATIVE_LISTING_FEE,
+        MSG_EXCESSIVE_LISTING_FEE,
+        MSG_LISTING_FEE_CHANGED,
+        MSG_NEGATIVE_SALES_FEE,
+        MSG_EXCESSIVE_SALES_FEE,
+        MSG_SALES_FEE_CHANGED,
+        MSG_CHEST_COUNT_INVALID,
+        MSG_CHEST_COUNT_CHANGED,
+        MSG_CHEST_STACK_LIMIT,
+        MSG_CHEST_STACK_NO_LIMIT
     }
 
 }

@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
-import static io.github.ibcodin.ibshop.MessageLookup.IBShopMessages.*;
+import static io.github.ibcodin.ibshop.MessageLookup.IBShopMessages.MSG_INVALID_PAGE_NUMBER;
 
 public class CommandList extends CommandHandler {
 
@@ -26,7 +26,7 @@ public class CommandList extends CommandHandler {
             if (!detailHelp) return;
 
             sendMessage(sender, ChatColor.YELLOW + "Performs an extended search");
-            sendMessage(sender, ChatColor.YELLOW + "Specifying "+ ChatColor.AQUA + "WO" + ChatColor.YELLOW + " will find both WOOL and WOOD");
+            sendMessage(sender, ChatColor.YELLOW + "Specifying " + ChatColor.AQUA + "WO" + ChatColor.YELLOW + " will find both WOOL and WOOD");
         }
     }
 
@@ -47,8 +47,7 @@ public class CommandList extends CommandHandler {
             try {
                 page = Integer.parseInt(args[0]);
                 return plugin.getSalesList().showAllSalesSummary(sender, page);
-            }
-            catch (NumberFormatException ee) {
+            } catch (NumberFormatException ee) {
                 List<String> preferredNames = plugin.getItemLookup().matchString(args[0]);
                 return plugin.getSalesList().showSelectedSalesSummary(sender, preferredNames, page);
             }
@@ -59,8 +58,7 @@ public class CommandList extends CommandHandler {
                 List<String> preferredNames = plugin.getItemLookup().matchString(args[0]);
                 page = Integer.parseInt(args[1]);
                 return plugin.getSalesList().showSelectedSalesSummary(sender, preferredNames, page);
-            }
-            catch (NumberFormatException ee) {
+            } catch (NumberFormatException ee) {
                 sendMessage(sender, MSG_INVALID_PAGE_NUMBER, args[1]);
             }
         }

@@ -2,7 +2,10 @@ package io.github.ibcodin.ibshop.commands;
 
 import io.github.ibcodin.ibshop.IBShop;
 import io.github.ibcodin.ibshop.MessageLookup;
-import org.bukkit.command.*;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.TabCompleter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,9 +15,8 @@ import java.util.logging.Level;
 public abstract class CommandHandler implements CommandExecutor, TabCompleter {
     protected final IBShop plugin;
     protected final PluginCommand command;
-    private final String commandName;
-
     protected final transient List<AlternateCommand> kids = new ArrayList<>();
+    private final String commandName;
 
     protected CommandHandler(IBShop plugin, String commandName) {
         this.plugin = plugin;

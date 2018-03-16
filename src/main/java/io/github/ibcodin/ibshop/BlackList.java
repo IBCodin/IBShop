@@ -7,9 +7,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 
 public class BlackList {
@@ -17,11 +15,9 @@ public class BlackList {
     private final IBShop plugin;
 
     private final File saveFile;
-    private FileConfiguration config;
-
-
     private final List<String> BlackListStrings = new ArrayList<>();
     private final transient List<Material> blackListItems = new ArrayList<>();
+    private FileConfiguration config;
 
     public BlackList(IBShop plugin) {
         this.plugin = plugin;
@@ -40,22 +36,22 @@ public class BlackList {
             return false;
         }
 
-        if (material.getMaxStackSize() < 16){
+        if (material.getMaxStackSize() < 16) {
 //            log(Level.INFO, "   Not stackable (" + material.getMaxStackSize() + ")");
             return false;
         }
 
-        if (test.getItemMeta().hasDisplayName()){
+        if (test.getItemMeta().hasDisplayName()) {
 //            log(Level.INFO, "   Has DisplayName");
             return false;
         }
 
-        if (test.getItemMeta().hasEnchants()){
+        if (test.getItemMeta().hasEnchants()) {
 //            log(Level.INFO, "   Has Enchants");
             return false;
         }
 
-        if (test.getItemMeta().hasLore()){
+        if (test.getItemMeta().hasLore()) {
 //            log(Level.INFO, "   Has Lore");
             return false;
         }

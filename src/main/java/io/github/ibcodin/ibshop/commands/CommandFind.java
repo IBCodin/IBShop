@@ -34,7 +34,7 @@ public class CommandFind extends CommandHandler {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         // item
 
-        if (args.length == 0){
+        if (args.length == 0) {
             sendHelp(sender, label, true);
             return true;
         }

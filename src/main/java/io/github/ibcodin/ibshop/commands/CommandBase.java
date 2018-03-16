@@ -1,7 +1,8 @@
 package io.github.ibcodin.ibshop.commands;
 
 import io.github.ibcodin.ibshop.IBShop;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,13 +38,13 @@ public class CommandBase extends CommandHandler {
             return true;
         }
 
-        for (AlternateCommand kid : kids){
+        for (AlternateCommand kid : kids) {
             if (kid.wantsCommand(sender, args[0])) {
                 return kid.sendCommand(sender, label, args);
             }
         }
 
-        sendMessage(sender,"unrecognized sub command " + args[0]);
+        sendMessage(sender, "unrecognized sub command " + args[0]);
         return true;
     }
 

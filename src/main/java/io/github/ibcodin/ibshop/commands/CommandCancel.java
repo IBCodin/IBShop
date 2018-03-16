@@ -23,7 +23,7 @@ public class CommandCancel extends CommandHandler {
     public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
         if (!senderHasPermission(sender)) return;
 
-        sendMessage(sender,"/" + label + " item quantity");
+        sendMessage(sender, "/" + label + " item quantity");
         sendMessage(sender, ChatColor.YELLOW + "  Return items from your active sales");
 
         if (!detailHelp) return;
@@ -46,7 +46,7 @@ public class CommandCancel extends CommandHandler {
             return true;
         }
 
-        if (! (sender instanceof Player)) {
+        if (!(sender instanceof Player)) {
             sendMessage(sender, MSG_NOT_PLAYER);
             return true;
         }
@@ -92,7 +92,7 @@ public class CommandCancel extends CommandHandler {
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] args) {
 
-        if (! (commandSender instanceof Player))
+        if (!(commandSender instanceof Player))
             return null;
 
         Player player = (Player) commandSender;

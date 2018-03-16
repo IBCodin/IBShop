@@ -1,6 +1,6 @@
 package io.github.ibcodin.ibshop.commands;
 
-import io.github.ibcodin.ibshop.*;
+import io.github.ibcodin.ibshop.IBShop;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -23,9 +23,9 @@ public class CommandSell extends CommandHandler {
     @Override
     public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
         if (senderHasPermission(sender)) {
-            sendMessage(sender,"/" + label + " item quantity [each_price]");
+            sendMessage(sender, "/" + label + " item quantity [each_price]");
             sendMessage(sender, ChatColor.YELLOW + "  Place quantity items up for sale at the each_price");
-            sendMessage(sender,ChatColor.YELLOW + "  The listing fee is paid when you list the sale");
+            sendMessage(sender, ChatColor.YELLOW + "  The listing fee is paid when you list the sale");
         }
     }
 
@@ -34,7 +34,7 @@ public class CommandSell extends CommandHandler {
         // TODO: implement command
         // sell item quantity each_price
 
-        if (! (sender instanceof Player)) {
+        if (!(sender instanceof Player)) {
             sendMessage(sender, MSG_NOT_PLAYER);
             return true;
         }
@@ -96,7 +96,7 @@ public class CommandSell extends CommandHandler {
         if (!(commandSender instanceof Player))
             return null;
 
-        Player player = (Player)commandSender;
+        Player player = (Player) commandSender;
 
         List<String> returnList = new ArrayList<>();
 
@@ -105,7 +105,7 @@ public class CommandSell extends CommandHandler {
             for (ItemStack stack : player.getInventory().getContents()) {
                 if (plugin.getBlackList().onWhiteList(stack)) {
                     String pname = plugin.getItemLookup().preferredName(stack);
-                    if (! returnList.contains(pname)) {
+                    if (!returnList.contains(pname)) {
                         returnList.add(pname);
                     }
                 }

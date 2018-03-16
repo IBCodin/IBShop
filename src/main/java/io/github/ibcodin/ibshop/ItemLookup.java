@@ -1,11 +1,12 @@
 package io.github.ibcodin.ibshop;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import org.apache.commons.lang.StringUtils;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
@@ -34,7 +35,7 @@ public class ItemLookup {
 
     private final transient File saveFile;
 
-    private final transient Map<ItemData,String> PreferredNames = new HashMap<>();
+    private final transient Map<ItemData, String> PreferredNames = new HashMap<>();
     private final transient Map<String, ItemData> Aliases = new HashMap<>();
     private final transient Map<String, String> nbtData = new HashMap<>();
 
@@ -83,11 +84,11 @@ public class ItemLookup {
             return names;
         }
 
-        for (String alias : Aliases.keySet()){
+        for (String alias : Aliases.keySet()) {
             if (alias.contains(search)) {
                 ItemData item = Aliases.get(alias);
 //                log(Level.INFO, search + " => " + alias + " (" + item.getMaterial() + ")");
-                if (! matches.contains(item)) {
+                if (!matches.contains(item)) {
                     matches.add(item);
                 }
             }
@@ -95,7 +96,7 @@ public class ItemLookup {
 
         for (ItemData item : matches) {
             String prefName = PreferredNames.get(item);
-            if (! names.contains(prefName)) {
+            if (!names.contains(prefName)) {
                 names.add(prefName);
             }
         }
@@ -106,12 +107,12 @@ public class ItemLookup {
     public void reload() {
         log(Level.INFO, "Loading lookup items");
 
-        if (! saveFile.exists()){
+        if (!saveFile.exists()) {
             // write the items file if it does not exist
             plugin.saveResource("items.csv", false);
         }
 
-        if (! saveFile.exists()){
+        if (!saveFile.exists()) {
             log(Level.SEVERE, "Item List items.csv not found.");
             return;
         }
@@ -120,8 +121,8 @@ public class ItemLookup {
         Aliases.clear();
 
         try {
-            try(BufferedReader br = new BufferedReader(new FileReader(saveFile))){
-                for (String line; (line = br.readLine()) != null; ){
+            try (BufferedReader br = new BufferedReader(new FileReader(saveFile))) {
+                for (String line; (line = br.readLine()) != null; ) {
                     if (line.length() > 0 && line.charAt(0) == '#')
                         continue;
 
@@ -190,7 +191,7 @@ public class ItemLookup {
         public boolean equals(Object o) {
             if (o == null)
                 return false;
-            if (! (o instanceof ItemData))
+            if (!(o instanceof ItemData))
                 return false;
 
             ItemData other = (ItemData) o;
