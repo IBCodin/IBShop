@@ -259,6 +259,7 @@ public class SalesList {
                 sales.remove(item);
             } else {
                 item.quantity -= buyQty;
+                item.lastSale = new Date();
             }
 
             save();
