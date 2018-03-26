@@ -1,11 +1,12 @@
 package io.github.ibcodin.ibshop.commands;
 
 import io.github.ibcodin.ibshop.IBShop;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
+
+import static io.github.ibcodin.ibshop.IBShopMessages.*;
 
 public class CommandReload extends CommandHandler {
     public static final String CommandName = "ibshopreload";
@@ -17,26 +18,16 @@ public class CommandReload extends CommandHandler {
     @Override
     public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
         if (senderHasPermission(sender)) {
-            sendMessage(sender, "/" + label);
-            sendMessage(sender, ChatColor.YELLOW + "  Rereads plugin configuration from disk");
+            send(sender, CMD_RELOAD_HELP_1, label);
+            send(sender, CMD_RELOAD_HELP_2);
+            send(sender, CMD_RELOAD_HELP_3);
         }
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-
-        plugin.getSettings().reload();
-
-        plugin.getMessageLookup().reload();
-
-        plugin.getItemLookup().reload();
-
-        plugin.getBlackList().reload();
-
-        plugin.getSalesList().reload();
-
-        sender.sendMessage(plugin.getSettings().prefixMessage("reloaded"));
-
+        plugin.reloadAll();
+        send(sender, CMD_RELOAD_DONE);
         return true;
     }
 

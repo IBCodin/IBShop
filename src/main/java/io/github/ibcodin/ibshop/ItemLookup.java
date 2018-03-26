@@ -162,7 +162,7 @@ public class ItemLookup {
     }
 
     private void log(Level level, String message) {
-        plugin.getLogger().log(level, message);
+        plugin.log(level, message);
     }
 
     static class ItemData {

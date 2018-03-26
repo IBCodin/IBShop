@@ -1,7 +1,6 @@
 package io.github.ibcodin.ibshop.commands;
 
 import io.github.ibcodin.ibshop.IBShop;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -10,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.github.ibcodin.ibshop.MessageLookup.IBShopMessages.*;
+import static io.github.ibcodin.ibshop.IBShopMessages.*;
 
 public class CommandCancel extends CommandHandler {
     public static final String CommandName = "ibshopcancel";
@@ -23,12 +22,17 @@ public class CommandCancel extends CommandHandler {
     public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
         if (!senderHasPermission(sender)) return;
 
-        sendMessage(sender, "/" + label + " item quantity");
-        sendMessage(sender, ChatColor.YELLOW + "  Return items from your active sales");
+        send(sender, CMD_CANCEL_HELP_1, label);
+        send(sender, CMD_CANCEL_HELP_2);
+        send(sender, CMD_CANCEL_HELP_3);
+        send(sender, CMD_CANCEL_HELP_4);
 
         if (!detailHelp) return;
 
-        sendMessage(sender, ChatColor.YELLOW + " Item must match exactly a name for an item you have on sale");
+        send(sender, CMD_CANCEL_DETAIL_HELP_1);
+        send(sender, CMD_CANCEL_DETAIL_HELP_2);
+        send(sender, CMD_CANCEL_DETAIL_HELP_3);
+        send(sender, CMD_CANCEL_DETAIL_HELP_4);
     }
 
 
@@ -41,23 +45,17 @@ public class CommandCancel extends CommandHandler {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (args.length == 0) {
+        if (args.length != 2) {
             sendHelp(sender, label, true);
             return true;
         }
 
         if (!(sender instanceof Player)) {
-            sendMessage(sender, MSG_NOT_PLAYER);
+            send(sender, NOT_PLAYER, label);
             return true;
         }
 
         Player player = (Player) sender;
-
-        if (args.length != 2) {
-            sendMessage(player, MSG_BAD_CANCEL_ARGS);
-            sendMessage(player, MSG_CANCEL_USAGE, label);
-            return true;
-        }
 
         String itemName = args[0];
         String strQty = args[1];
@@ -70,12 +68,12 @@ public class CommandCancel extends CommandHandler {
             findMat = plugin.getItemLookup().get(itemName, itemQty);
 
             if (findMat == null) {
-                sendMessage(player, MSG_NOT_MATERIAL, itemName);
+                send(player, NOT_MATERIAL, itemName);
                 return true;
             }
 
-            if (!plugin.getBlackList().onWhiteList(findMat)) {
-                sendMessage(player, MSG_NOT_WHITELIST, itemName);
+            if (!plugin.getBlackList().canSellItem(findMat)) {
+                send(player, NOT_WHITELIST, itemName);
                 return true;
             }
 
@@ -85,7 +83,6 @@ public class CommandCancel extends CommandHandler {
             ee.printStackTrace();
         }
 
-        // TODO: implement command
         return false;
     }
 

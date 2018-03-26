@@ -8,14 +8,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.*;
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.regex.Pattern;
 
-import static io.github.ibcodin.ibshop.MessageLookup.IBShopMessages.*;
+import static io.github.ibcodin.ibshop.IBShopMessages.*;
 import static java.lang.Math.abs;
 import static java.lang.Math.min;
 
@@ -27,12 +23,11 @@ public class SalesList {
     private final Economy economy;
     private final Settings settings;
     private final ItemLookup itemLookup;
-    private final MessageLookup messageLookup;
 
     private final File saveFile;
     private final File oldFile;
     private final File stageFile;
-    private final List<ItemForSale> sales = new ArrayList<>();
+    private final List<SalesItem> sales = new ArrayList<>();
 
 //    private static final transient Pattern csvSplit = Pattern.compile("\\s*,\\s*");
 
@@ -41,7 +36,6 @@ public class SalesList {
         this.economy = plugin.getEconomy();
         this.settings = plugin.getSettings();
         this.itemLookup = plugin.getItemLookup();
-        this.messageLookup = plugin.getMessageLookup();
 
         this.saveFile = new File(plugin.getDataFolder(), "saleslist.csv");
         this.oldFile = new File(plugin.getDataFolder(), "saleslist_old.csv");
@@ -56,28 +50,28 @@ public class SalesList {
         String preferredName = itemLookup.preferredName(material);
 
         // Search for a previous listing
-        ItemForSale itemForSale = find(sender.getUniqueId(), preferredName);
+        SalesItem salesItem = find(sender.getUniqueId(), preferredName);
 
         double upgradeFee = 0.0;
-        if (itemForSale != null) {
-            sendMessage(sender, MSG_PRIOR_LISTING, itemForSale.quantity, itemForSale.preferredName, economy.format(itemForSale.eachPrice));
+        if (salesItem != null) {
+            send(sender, PRIOR_LISTING, salesItem.getQuantity(), salesItem.getPreferredName(), economy.format(salesItem.getEachPrice()));
 
             if (itemEach == 0.0) {
-                itemEach = itemForSale.eachPrice;
+                itemEach = salesItem.getEachPrice();
             }
 
-            if (abs(itemForSale.eachPrice - itemEach) > 0.001) {
-                sendMessage(sender, MSG_CHANGE_PRICE, economy.format(itemForSale.eachPrice), economy.format(itemEach));
+            if (abs(salesItem.getEachPrice() - itemEach) > 0.001) {
+                send(sender, CHANGE_PRICE, economy.format(salesItem.getEachPrice()), economy.format(itemEach));
 
-                if (itemEach > itemForSale.eachPrice) {
-                    upgradeFee = itemForSale.quantity * (itemEach - itemForSale.eachPrice) * settings.getListingFee() / 100.0;
-                    sendMessage(sender, MSG_HIGHER_FEE, economy.format(upgradeFee));
+                if (itemEach > salesItem.getEachPrice()) {
+                    upgradeFee = salesItem.getQuantity() * (itemEach - salesItem.getEachPrice()) * settings.getListingFee() / 100.0;
+                    send(sender, HIGHER_FEE, economy.format(upgradeFee));
                 }
             }
         }
 
         if (itemEach == 0.0) {
-            sendMessage(sender, MSG_SELL_BAD_PRICE);
+            send(sender, SELL_BAD_PRICE);
             return true;
         }
 
@@ -89,17 +83,17 @@ public class SalesList {
         }
 
         double saleTotal = itemQty * itemEach;
-        sendMessage(sender, MSG_LISTING_TOTAL, itemQty, itemName, economy.format(itemEach), economy.format(saleTotal));
+        send(sender, LISTING_TOTAL, itemQty, itemName, economy.format(itemEach), economy.format(saleTotal));
 
         double listingFee = saleTotal * settings.getListingFee() / 100.0;
 
-        sendMessage(sender, MSG_LISTING_FEE, economy.format(listingFee));
+        send(sender, LISTING_FEE, economy.format(listingFee));
 
         double totalFee = listingFee + upgradeFee;
 
         // Confirm you have the listing fee
         if (!economy.has(sender, totalFee)) {
-            sendMessage(sender, MSG_ECON_LISTING_FAIL, economy.format(totalFee));
+            send(sender, ECON_LISTING_FAIL, economy.format(totalFee));
             return true;
         }
 
@@ -111,12 +105,12 @@ public class SalesList {
             int listingStacks = (itemQty + listStackSize - 1) / listStackSize;
 
             if ((currentStacks + listingStacks) > nStacks) {
-                sendMessage(sender, MSG_LISTINGS_FULL);
+                send(sender, LISTINGS_FULL);
                 return true;
             }
         }
 
-        ItemForSale testCache = new ItemForSale(preferredName, itemQty, itemEach, sender);
+        SalesItem testCache = new SalesItem(preferredName, itemQty, itemEach, sender);
         log(Level.INFO, "SalesItem: " + preferredName + " x " + itemQty + " @ " + itemEach);
 
         // Check for matching cached value
@@ -126,30 +120,30 @@ public class SalesList {
             // No Cached object
             log(Level.INFO, "No Cached Item");
             plugin.setCachedItem(sender.getUniqueId(), testCache);
-            sendMessage(sender, MSG_RESEND_TO_CONFIRM);
+            send(sender, RESEND_TO_CONFIRM);
             return true;
         }
 
-        if (!(fromCache instanceof ItemForSale)) {
-            // Cached object not ItemForSale
-            log(Level.INFO, "Cached Item not ItemForSale");
+        if (!(fromCache instanceof SalesItem)) {
+            // Cached object not SalesItem
+            log(Level.INFO, "Cached Item not SalesItem");
             plugin.setCachedItem(sender.getUniqueId(), testCache);
-            sendMessage(sender, MSG_RESEND_TO_CONFIRM);
+            send(sender, RESEND_TO_CONFIRM);
             return true;
         }
 
-        ItemForSale cachedItem = (ItemForSale) fromCache;
-        log(Level.INFO, "CacheItem: " + cachedItem.preferredName + " x "
-                + cachedItem.quantity + " @ " + cachedItem.eachPrice);
+        SalesItem cachedItem = (SalesItem) fromCache;
+        log(Level.INFO, "CacheItem: " + cachedItem.getPreferredName() + " x "
+                + cachedItem.getQuantity() + " @ " + cachedItem.getEachPrice());
 
-        if (!(cachedItem.preferredName.equals(testCache.preferredName)) ||
-                (cachedItem.quantity != testCache.quantity) ||
-                (cachedItem.eachPrice != testCache.eachPrice)
+        if (!(cachedItem.getPreferredName().equals(testCache.getPreferredName())) ||
+                (cachedItem.getQuantity() != testCache.getQuantity()) ||
+                (cachedItem.getEachPrice() != testCache.getEachPrice())
                 ) {
             log(Level.INFO, "No Match");
 
             plugin.setCachedItem(sender.getUniqueId(), testCache);
-            sendMessage(sender, MSG_RESEND_TO_CONFIRM);
+            send(sender, RESEND_TO_CONFIRM);
             return true;
         }
 
@@ -171,19 +165,19 @@ public class SalesList {
         log(Level.INFO, "removed");
 
         // Post the listing
-        if (itemForSale != null) {
-            itemForSale.quantity += itemQty;
-            itemForSale.eachPrice = itemEach;
-            itemForSale.lastListing = new Date();
+        if (salesItem != null) {
+            salesItem.addStock(itemQty);
+            salesItem.setEachPrice(itemEach);
+            salesItem.touchListingDate();
         } else {
-            itemForSale = new ItemForSale(preferredName, itemQty, itemEach, sender);
-            sales.add(itemForSale);
+            salesItem = new SalesItem(preferredName, itemQty, itemEach, sender);
+            sales.add(salesItem);
         }
 
         save();
 
-        double totalValue = itemForSale.quantity * itemForSale.eachPrice;
-        sendMessage(sender, MSG_LISTING_ADDED, itemForSale.quantity, itemName, economy.format(itemForSale.eachPrice), economy.format(totalValue));
+        double totalValue = salesItem.getQuantity() * salesItem.getEachPrice();
+        send(sender, LISTING_ADDED, salesItem.getQuantity(), itemName, economy.format(salesItem.getEachPrice()), economy.format(totalValue));
 
         return true;
     }
@@ -195,22 +189,22 @@ public class SalesList {
         log(Level.INFO, sender.getName() + " buying " + itemQty + " " + itemName + " at up to " + itemEach + "each");
 
         String preferredName = itemLookup.preferredName(findMat);
-        List<ItemForSale> matches = findSales(preferredName);
+        List<SalesItem> matches = findSales(preferredName);
 
         // ensure the player has enough to pay for the entire order in case it is satisfied
         double maxPay = itemQty * itemEach;
         if (!economy.has(sender, maxPay)) {
-            sendMessage(sender, MSG_ECON_BUY_FAIL, economy.format(maxPay));
+            send(sender, ECON_BUY_FAIL, economy.format(maxPay));
             return true;
         }
 
-        for (ItemForSale item : matches) {
+        for (SalesItem item : matches) {
             if (itemQty < 1)
                 break;
 
             // Buy what we can/need from this item
-            int buyQty = min(item.quantity, itemQty);
-            double eachBuyPrice = item.eachPrice + (item.eachPrice * (settings.getSalesFee() / 100.0));
+            int buyQty = min(item.getQuantity(), itemQty);
+            double eachBuyPrice = item.getEachPrice() + (item.getEachPrice() * (settings.getSalesFee() / 100.0));
 
             if (eachBuyPrice > itemEach)
                 break;
@@ -227,27 +221,27 @@ public class SalesList {
 
             // Take the money
             double itemPay = buyQty * eachBuyPrice;
-            double itemSell = buyQty * item.eachPrice;
+            double itemSell = buyQty * item.getEachPrice();
             economy.withdrawPlayer(sender, itemPay);
 
             // Pay the money
-            OfflinePlayer offlineSeller = plugin.getServer().getOfflinePlayer(item.sellingPlayerId);
+            OfflinePlayer offlineSeller = plugin.getServer().getOfflinePlayer(item.getSellingPlayerId());
             if (offlineSeller != null) {
                 economy.depositPlayer(offlineSeller, itemSell);
 
                 // Notify seller if online
-                Player onlineSeller = plugin.getServer().getPlayer(item.sellingPlayerId);
+                Player onlineSeller = plugin.getServer().getPlayer(item.getSellingPlayerId());
                 if (onlineSeller != null) {
-                    sendMessage(onlineSeller, MSG_ITEMS_SOLD,
+                    send(onlineSeller, ITEMS_SOLD,
                             economy.format(itemSell),
                             buyQty,
                             preferredName,
-                            economy.format(item.eachPrice)
+                            economy.format(item.getEachPrice())
                     );
                 }
             }
 
-            sendMessage(sender, MSG_ITEMS_BOUGHT,
+            send(sender, ITEMS_BOUGHT,
                     economy.format(itemPay),
                     buyQty,
                     itemName,
@@ -255,13 +249,10 @@ public class SalesList {
             );
 
             // Update the listing
-            if (buyQty == item.quantity) {
+            item.touchSaleDate();
+            if (item.removeStock(buyQty) == 0) {
                 sales.remove(item);
-            } else {
-                item.quantity -= buyQty;
-                item.lastSale = new Date();
             }
-
             save();
 
             itemQty -= buyQty;
@@ -271,10 +262,10 @@ public class SalesList {
     }
 
     public boolean showSalesDetailsByItemName(CommandSender sender, String preferredName, int page) {
-        List<ItemForSale> items = findSales(preferredName);
+        List<SalesItem> items = findSales(preferredName);
 
         if (items.isEmpty()) {
-            sendMessage(sender, MSG_NO_LISTINGS);
+            send(sender, NO_LISTINGS);
             return true;
         }
 
@@ -284,21 +275,21 @@ public class SalesList {
         pageLast = (pageLast > items.size()) ? items.size() : pageLast;
 
         if (pageFirst < items.size()) {
-            for (ItemForSale item : items.subList(pageFirst, pageLast)) {
-                double eachPrice = item.eachPrice + (item.eachPrice * (settings.getSalesFee() / 100.0));
+            for (SalesItem item : items.subList(pageFirst, pageLast)) {
+                double eachPrice = item.getEachPrice() + (item.getEachPrice() * (settings.getSalesFee() / 100.0));
                 String eachStr = economy.format(eachPrice);
-                sendMessage(sender, MSG_FOUND_LISTING, item.quantity, eachStr);
+                send(sender, FOUND_LISTING, item.getQuantity(), eachStr);
             }
-            sendMessage(sender, MSG_PAGE_OF, page, nPages);
+            send(sender, PAGE_OF, page, nPages);
         } else {
-            sendMessage(sender, MSG_NO_MORE_LISTINGS);
+            send(sender, NO_MORE_LISTINGS);
         }
 
         return true;
     }
 
     public boolean showSenderItemsForSale(Player sender, int page) {
-        List<ItemForSale> items = findStock(sender.getUniqueId());
+        List<SalesItem> items = findStock(sender.getUniqueId());
 
         int nPages = (items.size() + (pageSize - 1)) / pageSize;
         int pageFirst = (page - 1) * pageSize;
@@ -306,27 +297,27 @@ public class SalesList {
         pageLast = (pageLast > items.size()) ? items.size() : pageLast;
 
         if (pageFirst < items.size()) {
-            for (ItemForSale item : items.subList(pageFirst, pageLast)) {
-                sendMessage(sender, MSG_STOCK_LISTING,
-                        item.quantity,
-                        item.preferredName,
-                        economy.format(item.eachPrice)
+            for (SalesItem item : items.subList(pageFirst, pageLast)) {
+                send(sender, STOCK_LISTING,
+                        item.getQuantity(),
+                        item.getPreferredName(),
+                        economy.format(item.getEachPrice())
                 );
             }
-            sendMessage(sender, MSG_PAGE_OF, page, nPages);
+            send(sender, PAGE_OF, page, nPages);
         } else {
-            sendMessage(sender, MSG_NO_MORE_LISTINGS);
+            send(sender, NO_MORE_LISTINGS);
         }
 
         return true;
     }
 
     public List<String> getStockNames(Player sender) {
-        List<ItemForSale> items = findStock(sender.getUniqueId());
+        List<SalesItem> items = findStock(sender.getUniqueId());
 
         List<String> returnList = new ArrayList<>();
-        for (ItemForSale item : items) {
-            returnList.add(item.preferredName);
+        for (SalesItem item : items) {
+            returnList.add(item.getPreferredName());
         }
 
         Collections.sort(returnList);
@@ -337,16 +328,16 @@ public class SalesList {
         String preferredName = itemLookup.preferredName(material);
 
         // Search for a previous listing
-        ItemForSale itemForSale = find(sender.getUniqueId(), preferredName);
+        SalesItem salesItem = find(sender.getUniqueId(), preferredName);
 
-        if (itemForSale == null) {
-            sendMessage(sender, MSG_CANCEL_NO_ITEMS, itemName);
+        if (salesItem == null) {
+            send(sender, CANCEL_NO_ITEMS, itemName);
             return true;
         }
 
         // skip-Does the player have that many items on sale?
-        if (itemForSale.quantity < itemQty) {
-            itemQty = itemForSale.quantity;
+        if (salesItem.getQuantity() < itemQty) {
+            itemQty = salesItem.getQuantity();
         }
 
         // Build the stack for the available/requested items
@@ -360,13 +351,11 @@ public class SalesList {
         }
 
         // Update the listing
-        if (itemQty == itemForSale.quantity) {
-            sales.remove(itemForSale);
-        } else {
-            itemForSale.quantity -= itemQty;
+        if (salesItem.removeStock(itemQty) == 0) {
+            sales.remove(salesItem);
         }
 
-        sendMessage(sender, MSG_ITEMS_CANCELLED, itemQty, itemName);
+        send(sender, ITEMS_CANCELLED, itemQty, itemName);
 
         save();
 
@@ -383,15 +372,15 @@ public class SalesList {
 
     public List<String> getSalesItemNames() {
         List<String> returnList = new ArrayList<>();
-        for (ItemSummary item : salesSummary()) {
-            returnList.add(item.preferredName);
+        for (SalesSummary item : salesSummary()) {
+            returnList.add(item.getPreferredName());
         }
         return returnList;
     }
 
-    private boolean showSalesSummary(final CommandSender sender, final int page, final List<ItemSummary> items) {
+    private boolean showSalesSummary(final CommandSender sender, final int page, final List<SalesSummary> items) {
         if (items.isEmpty()) {
-            sendMessage(sender, MSG_NO_LISTINGS);
+            send(sender, NO_LISTINGS);
             return true;
         }
 
@@ -401,38 +390,38 @@ public class SalesList {
         pageLast = (pageLast > items.size()) ? items.size() : pageLast;
 
         if (pageFirst < items.size()) {
-            for (ItemSummary item : items.subList(pageFirst, pageLast)) {
-                sendMessage(sender, MSG_SALES_SUMMARY, item.quantity, item.preferredName);
+            for (SalesSummary item : items.subList(pageFirst, pageLast)) {
+                send(sender, SALES_SUMMARY, item.getQuantity(), item.getPreferredName());
             }
-            sendMessage(sender, MSG_PAGE_OF, page, nPages);
+            send(sender, PAGE_OF, page, nPages);
         } else {
-            sendMessage(sender, MSG_NO_MORE_LISTINGS);
+            send(sender, NO_MORE_LISTINGS);
         }
 
         return true;
     }
 
 
-    private List<ItemSummary> salesSummaryFiltered(final List<String> prefNames) {
-        final List<ItemSummary> result = new ArrayList<>();
-        for (ItemSummary sum : salesSummary()) {
-            if (prefNames.contains(sum.preferredName)) {
+    private List<SalesSummary> salesSummaryFiltered(final List<String> prefNames) {
+        final List<SalesSummary> result = new ArrayList<>();
+        for (SalesSummary sum : salesSummary()) {
+            if (prefNames.contains(sum.getPreferredName())) {
                 result.add(sum);
             }
         }
         return result;
     }
 
-    private List<ItemSummary> salesSummary() {
-        final List<ItemSummary> summary = new ArrayList<>();
-        final Map<String, ItemSummary> map = new HashMap<>();
+    private List<SalesSummary> salesSummary() {
+        final List<SalesSummary> summary = new ArrayList<>();
+        final Map<String, SalesSummary> map = new HashMap<>();
 
-        for (ItemForSale item : this.sales) {
-            if (map.containsKey(item.preferredName)) {
-                map.get(item.preferredName).add(item);
+        for (SalesItem item : this.sales) {
+            if (map.containsKey(item.getPreferredName())) {
+                map.get(item.getPreferredName()).add(item);
             } else {
-                ItemSummary itemSum = new ItemSummary(item);
-                map.put(item.preferredName, itemSum);
+                SalesSummary itemSum = new SalesSummary(item);
+                map.put(item.getPreferredName(), itemSum);
                 summary.add(itemSum);
             }
         }
@@ -441,45 +430,45 @@ public class SalesList {
     }
 
 
-    private List<ItemForSale> findSales(String preferredName) {
-        List<ItemForSale> matches = new ArrayList<>();
-        for (ItemForSale item : sales) {
+    private List<SalesItem> findSales(String preferredName) {
+        List<SalesItem> matches = new ArrayList<>();
+        for (SalesItem item : sales) {
             if (item == null) {
                 log(Level.SEVERE, "SalesList.findSales: Null Sales Listing found");
                 continue;
             }
-            if (item.preferredName == null) {
-                log(Level.WARNING, "Invalid Listing: " + item.dump());
+            if (item.getPreferredName() == null) {
+                log(Level.WARNING, "Invalid Listing: " + item.toCSV());
                 continue;
             }
-            if (item.preferredName.equals(preferredName)) {
+            if (item.getPreferredName().equals(preferredName)) {
                 matches.add(item);
             }
         }
 
-        matches.sort(ItemForSale.PRICE_ORDER);
+        matches.sort(SalesItem.PRICE_ORDER);
 
         return matches;
     }
 
-    private List<ItemForSale> findStock(UUID sellerId) {
-        List<ItemForSale> stock = new ArrayList<>();
-        for (ItemForSale item : sales) {
+    private List<SalesItem> findStock(UUID sellerId) {
+        List<SalesItem> stock = new ArrayList<>();
+        for (SalesItem item : sales) {
             if (item == null) {
                 log(Level.SEVERE, "SalesList.findStock: Null Sales Listing found");
                 continue;
             }
-            if (item.sellingPlayerId.equals((sellerId))) {
+            if (item.getSellingPlayerId().equals((sellerId))) {
                 stock.add(item);
             }
         }
         return stock;
     }
 
-    private ItemForSale find(UUID sellerId, String preferredName) {
-        for (ItemForSale itemForSale : sales) {
-            if (itemForSale.sellingPlayerId.equals(sellerId) && itemForSale.preferredName.equals(preferredName)) {
-                return itemForSale;
+    private SalesItem find(UUID sellerId, String preferredName) {
+        for (SalesItem salesItem : sales) {
+            if (salesItem.getSellingPlayerId().equals(sellerId) && salesItem.getPreferredName().equals(preferredName)) {
+                return salesItem;
             }
         }
         return null;
@@ -487,11 +476,11 @@ public class SalesList {
 
     private int getListingStacks(Player sender) {
         int stacks = 0;
-        List<ItemForSale> stock = this.findStock(sender.getUniqueId());
-        for (ItemForSale item : stock) {
-            ItemStack mat = itemLookup.get(item.preferredName);
+        List<SalesItem> stock = this.findStock(sender.getUniqueId());
+        for (SalesItem item : stock) {
+            ItemStack mat = itemLookup.get(item.getPreferredName());
             int stackSize = mat.getType().getMaxStackSize();
-            stacks += (item.quantity + stackSize - 1) / stackSize;
+            stacks += (item.getQuantity() + stackSize - 1) / stackSize;
         }
         return stacks;
     }
@@ -535,7 +524,7 @@ public class SalesList {
                     if (line.length() > 0 && line.charAt(0) == '#')
                         continue;
 
-                    ItemForSale item = ItemForSale.reparse(line);
+                    SalesItem item = SalesItem.reparseCSV(line);
                     if (item == null) {
                         log(Level.SEVERE, "Failed to load sale: " + line);
                         continue;
@@ -553,138 +542,53 @@ public class SalesList {
         log(Level.INFO, "SalesList.save");
 
         // Create new STAGE file
-        if (stageFile.exists()) stageFile.delete();
+        if (stageFile.exists()) {
+            if (! stageFile.delete())
+            {
+                log(Level.SEVERE, "Failed to delete old stage file " + stageFile.getName());
+            }
+        }
 
         try {
-            stageFile.createNewFile();
+            if (! stageFile.createNewFile()) {
+                log(Level.SEVERE, "Failed to create stage file " + stageFile.getName());
+            }
 
             try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stageFile), "utf-8"))) {
-                for (ItemForSale sale : sales) {
-                    writer.write(sale.dump());
+                for (SalesItem sale : sales) {
+                    writer.write(sale.toCSV());
                 }
             }
         } catch (Exception ee) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to write sales stage file", ee);
+            plugin.log(Level.SEVERE, "Failed to write sales stage file", ee);
             return;
         }
 
         // Remove any OLD file
-        if (oldFile.exists()) oldFile.delete();
+        if (oldFile.exists()) {
+            if (! oldFile.delete()) {
+                log(Level.SEVERE, "Failed to remove old file " + oldFile.getName());
+            }
+        }
 
         // Rename file to OLD
-        saveFile.renameTo(oldFile);
+        if (! saveFile.renameTo(oldFile)) {
+            log(Level.SEVERE, "Failed to rename sales file " + saveFile.getName() + " to " + oldFile.getName());
+        }
 
         // Rename STAGE to file
-        stageFile.renameTo(saveFile);
-
+        if (! stageFile.renameTo(saveFile)) {
+            log(Level.SEVERE, "Failed to rename stage file " + stageFile.getName() + " to " + saveFile.getName());
+        }
     }
 
-    public void sendMessage(CommandSender sender, MessageLookup.IBShopMessages msg, Object... args) {
-        messageLookup.sendMessage(sender, msg, args);
+    public void send(CommandSender sender, IBShopMessages msg, Object... args) {
+        plugin.send(sender, msg, args);
     }
 
     protected void log(Level level, String message) {
-        plugin.getLogger().log(level, message);
+        plugin.log(level, message);
     }
 
-    static public class ItemForSale {
-        public static final Comparator<ItemForSale> PRICE_ORDER =
-                Comparator.comparingDouble(o -> o.eachPrice);
-        private static final transient Pattern csvSplit = Pattern.compile("\\s*,\\s*");
-        private static final transient SimpleDateFormat dateSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String preferredName;
-        int quantity;
-        double eachPrice;
-        UUID sellingPlayerId;
-        Date lastListing;
-        Date lastSale;
-
-        public ItemForSale(String preferredName,
-                           int quantity,
-                           double eachPrice,
-                           OfflinePlayer seller) {
-            this.preferredName = preferredName;
-            this.quantity = quantity;
-            this.eachPrice = eachPrice;
-            this.sellingPlayerId = seller.getUniqueId();
-            this.lastListing = new Date();
-            this.lastSale = null;
-        }
-
-        protected ItemForSale(String preferredName,
-                              String quantity,
-                              String eachPrice,
-                              String sellerId,
-                              String lastListing,
-                              String lastSale) {
-            this.preferredName = preferredName;
-            this.quantity = Integer.parseInt(quantity);
-            this.eachPrice = Double.parseDouble(eachPrice);
-            this.sellingPlayerId = UUID.fromString(sellerId);
-            try {
-                this.lastListing = dateSdf.parse(lastListing);
-            } catch (ParseException ee) {
-                this.lastListing = new Date();
-            }
-            if (lastSale.isEmpty()) {
-                this.lastSale = null;
-            } else {
-                try {
-                    this.lastSale = dateSdf.parse(lastSale);
-                } catch (ParseException ee) {
-                    this.lastSale = null;
-                }
-            }
-        }
-
-        public static ItemForSale reparse(final String line) {
-            String[] fields = csvSplit.split(line);
-
-            if (fields.length < 5) {
-                System.out.println("ItemForSale.reparse: only found " + fields.length + " fields");
-                return null;
-            }
-
-            return new ItemForSale(
-                    fields[0],
-                    fields[1],
-                    fields[2],
-                    fields[3],
-                    fields[4],
-                    (fields.length > 5) ? fields[5] : ""
-            );
-        }
-
-        public String dump() {
-            return new MessageFormat("{0},{1},{2},{3},{4},{5}\n")
-                    .format(new Object[]{
-                            preferredName,
-                            quantity,
-                            eachPrice,
-                            sellingPlayerId,
-                            dateSdf.format(lastListing),
-                            ((lastSale == null) ? "" : dateSdf.format(lastSale))
-                    });
-        }
-    }
-
-    static class ItemSummary {
-        String preferredName;
-        int quantity;
-
-        public ItemSummary(ItemForSale item) {
-            this.preferredName = item.preferredName;
-            this.quantity = item.quantity;
-        }
-
-        public void add(ItemForSale item) {
-            assert (item.preferredName.equals(this.preferredName));
-            this.quantity += item.quantity;
-        }
-
-        public String dump() {
-            return new MessageFormat("{0},{1}\n")
-                    .format(new Object[]{preferredName, quantity});
-        }
-    }
 }
+

@@ -1,5 +1,5 @@
-name: IBShop
-version: 1.1.0
+name: ${project.name}
+version: ${project.version}
 author: ibcodin
 description: Virtual Stackable Block Shop
 main: io.github.ibcodin.ibshop.IBShop

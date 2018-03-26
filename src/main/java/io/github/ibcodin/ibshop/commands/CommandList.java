@@ -1,13 +1,12 @@
 package io.github.ibcodin.ibshop.commands;
 
 import io.github.ibcodin.ibshop.IBShop;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
-import static io.github.ibcodin.ibshop.MessageLookup.IBShopMessages.MSG_INVALID_PAGE_NUMBER;
+import static io.github.ibcodin.ibshop.IBShopMessages.*;
 
 public class CommandList extends CommandHandler {
 
@@ -20,13 +19,16 @@ public class CommandList extends CommandHandler {
     @Override
     public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
         if (senderHasPermission(sender)) {
-            sendMessage(sender, "/" + label + " [item | page]");
-            sendMessage(sender, ChatColor.YELLOW + "  List sales by item match or page");
+            send(sender, CMD_LIST_HELP_1, label );
+            send(sender, CMD_LIST_HELP_2);
+            send(sender, CMD_LIST_HELP_3);
 
             if (!detailHelp) return;
 
-            sendMessage(sender, ChatColor.YELLOW + "Performs an extended search");
-            sendMessage(sender, ChatColor.YELLOW + "Specifying " + ChatColor.AQUA + "WO" + ChatColor.YELLOW + " will find both WOOL and WOOD");
+            send(sender, CMD_LIST_DETAIL_HELP_1);
+            send(sender, CMD_LIST_DETAIL_HELP_2);
+            send(sender, CMD_LIST_DETAIL_HELP_3);
+            send(sender, CMD_LIST_DETAIL_HELP_4);
         }
     }
 
@@ -59,7 +61,7 @@ public class CommandList extends CommandHandler {
                 page = Integer.parseInt(args[1]);
                 return plugin.getSalesList().showSelectedSalesSummary(sender, preferredNames, page);
             } catch (NumberFormatException ee) {
-                sendMessage(sender, MSG_INVALID_PAGE_NUMBER, args[1]);
+                send(sender, INVALID_PAGE_NUMBER, args[1]);
             }
         }
 

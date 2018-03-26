@@ -1,7 +1,6 @@
 package io.github.ibcodin.ibshop.commands;
 
 import io.github.ibcodin.ibshop.IBShop;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -10,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.github.ibcodin.ibshop.MessageLookup.IBShopMessages.*;
+import static io.github.ibcodin.ibshop.IBShopMessages.*;
 
 public class CommandBuy extends CommandHandler {
 
@@ -23,9 +22,13 @@ public class CommandBuy extends CommandHandler {
     @Override
     public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
         if (senderHasPermission(sender)) {
-            sendMessage(sender, "/" + label + " item quantity max_each_price");
-            sendMessage(sender, ChatColor.YELLOW + "  Buy quantity items up to max_each_price");
-            sendMessage(sender, ChatColor.YELLOW + "  You must have enough to pay for and hold all of the items");
+            send(sender, CMD_BUY_HELP_1,  label );
+            send(sender, CMD_BUY_HELP_2);
+            send(sender, CMD_BUY_HELP_3);
+            send(sender, CMD_BUY_HELP_4);
+            send(sender, CMD_BUY_HELP_5);
+            send(sender, CMD_BUY_HELP_6);
+            send(sender, CMD_BUY_HELP_7);
         }
     }
 
@@ -33,15 +36,14 @@ public class CommandBuy extends CommandHandler {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
         if (!(sender instanceof Player)) {
-            sendMessage(sender, MSG_NOT_PLAYER);
+            send(sender, NOT_PLAYER, label);
             return true;
         }
 
         Player player = (Player) sender;
 
         if (args.length != 3) {
-            sendMessage(player, MSG_BAD_BUY_ARGS);
-            sendMessage(player, MSG_BUY_USAGE, label);
+            sendHelp(sender, label, true);
             return true;
         }
 
@@ -56,12 +58,12 @@ public class CommandBuy extends CommandHandler {
             ItemStack findMat = plugin.getItemLookup().get(itemName);
 
             if (findMat == null) {
-                sendMessage(player, MSG_NOT_MATERIAL, itemName);
+                send(player, NOT_MATERIAL, itemName);
                 return true;
             }
 
-            if (!plugin.getBlackList().onWhiteList(findMat)) {
-                sendMessage(player, MSG_NOT_WHITELIST, itemName);
+            if (!plugin.getBlackList().canSellItem(findMat)) {
+                send(player, NOT_WHITELIST, itemName);
                 return true;
             }
 
@@ -71,7 +73,7 @@ public class CommandBuy extends CommandHandler {
             ee.printStackTrace();
         }
 
-        sender.sendMessage("Purchase Failed");
+        send(sender, CMD_BUY_FAIL);
 
         return false;
     }

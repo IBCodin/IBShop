@@ -26,7 +26,7 @@ public class BlackList {
         reload();
     }
 
-    public boolean onWhiteList(ItemStack test) {
+    public boolean canSellItem(ItemStack test) {
         Material material = test.getType();
 
 //        log(Level.INFO, "Checking BlackList for Material " + material.name());
@@ -93,6 +93,6 @@ public class BlackList {
     }
 
     private void log(Level level, String message) {
-        plugin.getLogger().log(level, message);
+        plugin.log(level, message);
     }
 }

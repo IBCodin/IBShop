@@ -1,14 +1,13 @@
 package io.github.ibcodin.ibshop.commands;
 
 import io.github.ibcodin.ibshop.IBShop;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
-import static io.github.ibcodin.ibshop.MessageLookup.IBShopMessages.*;
+import static io.github.ibcodin.ibshop.IBShopMessages.*;
 
 public class CommandFind extends CommandHandler {
     public static final String CommandName = "ibshopfind";
@@ -21,13 +20,16 @@ public class CommandFind extends CommandHandler {
     public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
         if (!senderHasPermission(sender)) return;
 
-        sendMessage(sender, "/" + label + " item");
-        sendMessage(sender, ChatColor.YELLOW + "  Find sales of the item");
+        send(sender, CMD_FIND_HELP_1, label);
+        send(sender, CMD_FIND_HELP_2);
+        send(sender, CMD_FIND_HELP_3);
+        send(sender, CMD_FIND_HELP_4);
 
         if (!detailHelp) return;
-
-        sendMessage(sender, ChatColor.YELLOW + "This will try to match your text to a specific item");
-        sendMessage(sender, ChatColor.YELLOW + "and show the details for any sale listing that item");
+        send(sender, CMD_FIND_DETAIL_HELP_1);
+        send(sender, CMD_FIND_DETAIL_HELP_2);
+        send(sender, CMD_FIND_DETAIL_HELP_3);
+        send(sender, CMD_FIND_DETAIL_HELP_4);
     }
 
     @Override
@@ -46,20 +48,20 @@ public class CommandFind extends CommandHandler {
             ItemStack findMat = plugin.getItemLookup().get(itemName);
 
             if (findMat == null) {
-                sendMessage(sender, MSG_NOT_MATERIAL, itemName);
+                send(sender, NOT_MATERIAL, itemName);
                 return true;
             }
 
 //            log(Level.INFO, "The item " + itemName + " matched " + findMat.getType().name());
 
-            if (!plugin.getBlackList().onWhiteList(findMat)) {
-                sendMessage(sender, MSG_NOT_WHITELIST, itemName.toString());
+            if (!plugin.getBlackList().canSellItem(findMat)) {
+                send(sender, NOT_WHITELIST, itemName);
                 return true;
             }
 
             String preferredName = plugin.getItemLookup().preferredName(findMat);
 
-            sendMessage(sender, MSG_FIND_LISTING, preferredName);
+            send(sender, FIND_LISTING, preferredName);
 
             return plugin.getSalesList().showSalesDetailsByItemName(sender, preferredName, itemPage);
 

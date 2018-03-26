@@ -1,7 +1,6 @@
 package io.github.ibcodin.ibshop.commands;
 
 import io.github.ibcodin.ibshop.IBShop;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -11,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.github.ibcodin.ibshop.MessageLookup.IBShopMessages.*;
+import static io.github.ibcodin.ibshop.IBShopMessages.*;
 
 public class CommandSell extends CommandHandler {
     public static final String CommandName = "ibshopsell";
@@ -22,11 +21,19 @@ public class CommandSell extends CommandHandler {
 
     @Override
     public void sendHelp(CommandSender sender, String label, boolean detailHelp) {
-        if (senderHasPermission(sender)) {
-            sendMessage(sender, "/" + label + " item quantity [each_price]");
-            sendMessage(sender, ChatColor.YELLOW + "  Place quantity items up for sale at the each_price");
-            sendMessage(sender, ChatColor.YELLOW + "  The listing fee is paid when you list the sale");
-        }
+        if (!senderHasPermission(sender))
+            return;
+
+        send(sender, CMD_SELL_HELP_1, label);
+        send(sender, CMD_SELL_HELP_2);
+        send(sender, CMD_SELL_HELP_3);
+        send(sender, CMD_SELL_HELP_4);
+
+        if (!detailHelp) return;
+
+        send(sender, CMD_SELL_DETAIL_HELP_1);
+        send(sender, CMD_SELL_DETAIL_HELP_2);
+        send(sender, CMD_SELL_DETAIL_HELP_3);
     }
 
     @Override
@@ -35,15 +42,14 @@ public class CommandSell extends CommandHandler {
         // sell item quantity each_price
 
         if (!(sender instanceof Player)) {
-            sendMessage(sender, MSG_NOT_PLAYER);
+            send(sender, NOT_PLAYER, label);
             return true;
         }
 
         Player player = (Player) sender;
 
         if (args.length < 2 || args.length > 3) {
-            sendMessage(player, MSG_BAD_SELL_ARGS);
-            sendMessage(player, MSG_SELL_USAGE, label);
+            sendHelp(sender, label, true);
             return true;
         }
 
@@ -65,19 +71,14 @@ public class CommandSell extends CommandHandler {
             }
 
             if (findMat == null) {
-                sendMessage(player, MSG_NOT_MATERIAL, itemName);
+                send(player, NOT_MATERIAL, itemName);
                 return true;
             }
 
-            if (!plugin.getBlackList().onWhiteList(findMat)) {
-                sendMessage(player, MSG_NOT_WHITELIST, itemName);
+            if (!plugin.getBlackList().canSellItem(findMat)) {
+                send(player, NOT_WHITELIST, itemName);
                 return true;
             }
-
-//            if (!player.getInventory().containsAtLeast(findMat, itemQty)) {
-//                messageLookup.sendMessage(player, MSG_TOO_FEW_ITEMS, itemQty, itemName);
-//                return true;
-//            }
 
             return plugin.getSalesList().addSalesListing(player, findMat, itemName, itemQty, itemEach);
 
@@ -85,7 +86,7 @@ public class CommandSell extends CommandHandler {
             ee.printStackTrace();
         }
 
-        sender.sendMessage("Sale Failed");
+        send(sender, CMD_SELL_FAIL);
 
         return false;
     }
@@ -103,7 +104,7 @@ public class CommandSell extends CommandHandler {
         if ((args.length < 1) || args[0].equals("")) {
             // Build the list of sellable items from the player inventory
             for (ItemStack stack : player.getInventory().getContents()) {
-                if (plugin.getBlackList().onWhiteList(stack)) {
+                if (plugin.getBlackList().canSellItem(stack)) {
                     String pname = plugin.getItemLookup().preferredName(stack);
                     if (!returnList.contains(pname)) {
                         returnList.add(pname);

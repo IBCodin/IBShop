@@ -1,5 +1,6 @@
 package io.github.ibcodin.ibshop;
 
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.logging.Level;
@@ -10,7 +11,7 @@ public class Settings {
 
 //    private FileConfiguration config;
 
-    private String messagePrefix = "[ibshop]: ";
+    private String messagePrefix = "&b[ibshop]:";
     private double listingFee = 5.00;
     private double salesFee = 10.00;
     private int maxChestCount = 10;
@@ -18,28 +19,19 @@ public class Settings {
     public Settings(IBShop plugin) {
         this.plugin = plugin;
 
-        // write the default configuration from the package if config.yml does not exist
-        plugin.saveDefaultConfig();
-
         reload();
+
+        // make sure all known configuration items exist in the file
+        save();
     }
 
     public void reload() {
         log(Level.INFO, "Loading settings");
-        // Get config and preload defaults (will create any new defaults)
         FileConfiguration config = plugin.getConfig();
-        config.addDefault("MessagePrefix", "[ibshop]: ");
-        config.addDefault("ListingFee", 5.00);
-        config.addDefault("SalesFee", 10.00);
-        config.addDefault("MaxChestCount", 10);
-        config.options().copyDefaults(true);
-        plugin.saveConfig();
-
-        config = plugin.getConfig();
-        messagePrefix = config.getString("MessagePrefix");
-        listingFee = config.getDouble("ListingFee");
-        salesFee = config.getDouble("SalesFee");
-        maxChestCount = config.getInt("MaxChestCount");
+        messagePrefix = config.getString("MessagePrefix", messagePrefix);
+        listingFee = config.getDouble("ListingFee", listingFee);
+        salesFee = config.getDouble("SalesFee", salesFee);
+        maxChestCount = config.getInt("MaxChestCount", maxChestCount);
     }
 
     public void save() {
@@ -52,7 +44,7 @@ public class Settings {
     }
 
     public String prefixMessage(String message) {
-        return String.format("%s%s", messagePrefix, message);
+        return ChatColor.translateAlternateColorCodes('&', String.format("%s&r %s", messagePrefix, message));
     }
 
     public String getMessagePrefix() {
@@ -92,6 +84,6 @@ public class Settings {
     }
 
     protected void log(Level level, String message) {
-        plugin.getLogger().log(level, message);
+        plugin.log(level, message);
     }
 }
